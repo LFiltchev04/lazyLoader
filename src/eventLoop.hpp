@@ -11,7 +11,6 @@
 #include "addMarks.hpp"
 //#include "httplib.h
 
-//this one looks at the incoming blob pull request hooks and allocates coroutines to perform the needed work
 int startEventLoop(int queueFd, databaseSingleton* dbSingleton){
     epoll_ctl(queueFd, EPOLL_CTL_ADD, queueFd, nullptr);
 
@@ -120,46 +119,3 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
 }
 
 
-
-
-struct coroutine {
-    struct promise_type {
-        coroutine get_return_object() {
-            return coroutine{std::coroutine_handle<promise_type>::from_promise(*this)};
-        }
-
-
-        std::suspend_never initial_suspend() { return {}; }
-        std::suspend_never final_suspend() noexcept { return {}; }
-        void return_void() {}
-        void unhandled_exception() { std::terminate(); }
-    };
-
-    coroutine(std::coroutine_handle<promise_type> h) : handle(h) {}
-    promise_type& promise() { return handle.promise(); }
-    
-    
-    bool await_ready() { return false; }
-    bool await_resume() { return false; }
-    bool await_suspend(std::coroutine_handle<> h) { handle.resume(); return false; }
-
-    void resume() { handle.resume();}
-    
-
-
-    std::coroutine_handle<promise_type> handle;
-};
-
-coroutine doFilePull() {
-    // Simulate a fetch operation
-    std::cout << "Fetching data..." << std::endl;
-    co_return;
-}
-
-coroutine doFetch(){
-
-    coroutine c = doFilePull();
-
-    co_await doFilePull();
-    
-}

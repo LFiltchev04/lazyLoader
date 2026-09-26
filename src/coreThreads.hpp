@@ -169,8 +169,9 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
             if (events[i].data.fd == uringToFanotifyGlobal){
                                 
                 unblockOp.response = FAN_ALLOW;
-                unblockOp.fd = 
-                                write(fanFd, &unblockOp, sizeof(unblockOp));
+                //have to figure out whether i can dig out the right fd, its somewhere in the contexts
+                //unblockOp.fd = meta->fd;
+                write(fanFd, &unblockOp, sizeof(unblockOp));
 
 
                 continue;
@@ -184,7 +185,7 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
                 continue;
             }
 
-            for (fanotify_event_metadata* meta = reinterpret_cast<fanotify_event_metadata*>(buf);FAN_EVENT_OK(meta, static_cast<int>(len));meta = FAN_EVENT_NEXT(meta, len)) {
+            for (fanotify_event_metadata* meta = reinterpret_cast<fanotify_event_metadata*>(buf); FAN_EVENT_OK(meta, static_cast<int>(len)); meta = FAN_EVENT_NEXT(meta, len)) {
                 std::cout << "event meta is: " << meta->mask <<std::endl;
 
                 //this is questionable, if it starts throwing version errors ill revisit
@@ -322,6 +323,7 @@ void networkEventLoop() {
                 auto sqe = io_uring_get_sqe(&ring);
                 io_uring_sqe_set_data(sqe, &it->second);
                 
+                it->second.
                 //part of a potential IORING_SETUP_SQPOLL implementation 
                 //if(*(&ring)->sq.kflags & IORING_SQ_NEED_WAKEUP){
                 //    io_uring_sqe_set_flags(sqe, IORING_ENTER_SQ_WAKEUP);

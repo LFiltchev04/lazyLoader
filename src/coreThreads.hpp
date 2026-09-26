@@ -18,11 +18,16 @@
 #include "databaseSingleton.hpp"
 #include "smallfilesBuffer.hpp"
 #include "largefilesBuffer.hpp"
+#include "filePacker.hpp"
 
 //ive got waaaay too much redundant security checks revisit to drop them, this is the hot path for file loads after all
 
 
 struct fileOp {
+    filePack filePack;
+    
+
+    //
     std::string filePath;
     uint32_t filePosPointer;
     int fanotifyFd;
@@ -230,7 +235,8 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
 
 
 void networkEventLoop() {
-   int eventChanFd = eventfd(0, EFD_NONBLOCK);
+   //gotta wipe theese
+    int eventChanFd = eventfd(0, EFD_NONBLOCK);
    
     //figure out how to use IORING_SETUP_SQPOLL
     struct io_uring ring;
@@ -323,7 +329,6 @@ void networkEventLoop() {
                 auto sqe = io_uring_get_sqe(&ring);
                 io_uring_sqe_set_data(sqe, &it->second);
                 
-                it->second.
                 //part of a potential IORING_SETUP_SQPOLL implementation 
                 //if(*(&ring)->sq.kflags & IORING_SQ_NEED_WAKEUP){
                 //    io_uring_sqe_set_flags(sqe, IORING_ENTER_SQ_WAKEUP);
@@ -373,6 +378,12 @@ void networkEventLoop() {
         return 0;
     });
 
+
+    nghttp2_session_callbacks_set_send_callback(callbacks, [](nghttp2_session *session, const uint8_t *data, size_t length, int flags, void *user_data) -> ssize_t {
+    
+        //return write(fd, data, length);
+    });
+
     bufferPool* bPool = new bufferPool(100, 16);
 
     struct sockaddr_in addr{};
@@ -389,7 +400,9 @@ void networkEventLoop() {
         MAKE_NV(":method", "GET"),
         MAKE_NV(":path", "/index.html"),
         MAKE_NV(":scheme", "http"),
-        MAKE_NV("user-agent", "nghttp2/1.0")
+        MAKE_NV("user-agent", "nghttp2/1.0"),
+        MAKE_NV("hash","fuck this"),
+        MAKE_NV("filePath", "pth")
     };
 
 
@@ -425,6 +438,7 @@ void networkEventLoop() {
 
             int32_t streamId = nghttp2_submit_request(session, nullptr, hdrs, sizeof(hdrs), nullptr, nullptr);
             
+            /*
             fileOp newOp(
                 filePathOpt.value(), //file path
                 0, //file pos pointer
@@ -432,8 +446,9 @@ void networkEventLoop() {
                 0, // liburing file descriptor for populating content
                 0 //ongoing liburing writes semaphore
             );
+            */
 
-            activeFilePulls.insert({streamId, newOp});
+            //activeFilePulls.insert({streamId, newOp});
         }
 
 
@@ -445,6 +460,7 @@ void networkEventLoop() {
                 break;
             }
 
+            //will rely on the internal buffers to memcpy, slabs will be pushed to callback management so i can accuratley track offsets
             std::cout << "read " << readNum << " bytes\n";
             nghttp2_session_mem_recv(session, reinterpret_cast<const uint8_t*>(slab->data), readNum);
         

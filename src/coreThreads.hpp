@@ -24,9 +24,7 @@
 
 
 struct fileOp {
-    filePack filePack;
-    
-
+    slab* frameBuffer;
     //
     std::string filePath;
     uint32_t filePosPointer;
@@ -298,6 +296,22 @@ void networkEventLoop() {
     });
 
 
+    //dont know what to use this for, might have to start thinking about it when i decide to do the server
+    nghttp2_session_callbacks_set_on_header_callback(callbacks, [](nghttp2_session *session, const nghttp2_frame *frame, const uint8_t *name, size_t namelen, const uint8_t *value, size_t valuelen, uint8_t flags, void *user_data) -> int {
+
+        std::string_view name_view(reinterpret_cast<const char*>(name), namelen);
+        std::string_view value_view(reinterpret_cast<const char*>(value), valuelen);
+
+
+        if(name_view == ":status" and value_view == "200"){
+            return 0;
+        }
+
+        return 0;
+
+    });
+
+
     nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, [](nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data) -> int {
         //could maybe manage thread contention better but it will have to work for now, lots of bugs possible if i decide to manually lock/unlock the thing
         std::lock_guard<std::mutex> guard(activeFilePullsStateLock);
@@ -412,6 +426,9 @@ void networkEventLoop() {
     epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, nullptr);
     epoll_event event;
 
+    //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff 
+    char buffer[65536];
+
     while(true){
         int n = epoll_wait(epollfd, &event, 1, -1);
         if(n < 0){
@@ -454,15 +471,14 @@ void networkEventLoop() {
 
 
         for(int x = 0; x < 4; x++){
-            auto slab = bPool->getSlab();
-            ssize_t readNum = read(client_fd, slab->data, sizeof(slab->data));
+            ssize_t readNum = read(client_fd, buffer, sizeof(buffer));
             if(readNum <= 0){
                 break;
             }
 
             //will rely on the internal buffers to memcpy, slabs will be pushed to callback management so i can accuratley track offsets
             std::cout << "read " << readNum << " bytes\n";
-            nghttp2_session_mem_recv(session, reinterpret_cast<const uint8_t*>(slab->data), readNum);
+            nghttp2_session_mem_recv(session, reinterpret_cast<const uint8_t*>(buffer), readNum);
         
         }
         

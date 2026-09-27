@@ -28,8 +28,6 @@ void staticAllocatedPool<T>::yield(T* item) {
         printf("Invalid item passed to yield, ignoring\n");
         return;
     }
-    
-
 }
 
 //internal compaction function for references

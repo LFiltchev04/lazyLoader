@@ -597,7 +597,6 @@ auto uringCompletionHndlrNew = [](io_uring_cqe* cqe){
         }
         fileOp* fOp = static_cast<fileOp*>(io_uring_cqe_get_data(cqe));
 
-        mq_send()
     }
 };
 

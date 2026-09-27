@@ -36,7 +36,7 @@ void staticAllocatedPool<T>::yield(T* item) {
 template <typename T>
 void staticAllocatedPool<T>::refPushdown() {
     
-    
+
     T* ptrAdv = &pool[0];
     T* ptrBackmark = &pool[0];
     
@@ -53,8 +53,9 @@ void staticAllocatedPool<T>::refPushdown() {
             //stays there
             ptrAdv += 1;
             if(ptrAdv != nullptr){
-                //hope it works
+                //that ought to bubble holes right out of it
                 ptrBackmark = ptrAdv;
+                ptrAdv = nullptr;
 
                 ptrBackmark += 1;
                 ptrAdv += 1;

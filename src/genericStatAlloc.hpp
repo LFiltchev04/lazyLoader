@@ -16,7 +16,8 @@ template <typename T>
 class staticAllocatedPool{
     std::mutex poolLock;
     uint32_t maxSize;
-    
+    uint32_t currentSize;
+
     T pool[maxSize];
     T* stackRef[maxSize];
     

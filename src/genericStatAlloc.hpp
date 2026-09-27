@@ -17,14 +17,15 @@ class staticAllocatedPool{
     std::mutex poolLock;
     uint32_t maxSize;
     uint32_t currentSize;
+    T pool[maxSize];
 
-    std::stack<T*> pool;
+    std::stack<T*> poolRef;
     
 
     public:
     staticAllocatedPool(int maxSize);
 
-    T* get();
+    void get(T*);
     void yield(T* item);
 
 };

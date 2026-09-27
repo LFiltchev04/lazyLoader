@@ -24,7 +24,7 @@
 
 
 struct fileOp {
-    slab* frameBuffer;
+    std::vector<slab*> frameBuffer;
     //
     std::string filePath;
     uint32_t filePosPointer;
@@ -281,7 +281,7 @@ void networkEventLoop() {
 
             if(activePulls->find(frame->hd.stream_id) == activePulls->end()){
                 frame->hd.stream_id;
-                activePulls->insert({frame->hd.stream_id, {0u, 0}});    
+                activePulls->emplace(frame->hd.stream_id, fileOp{{},0u, 0});
             }
             
         }
@@ -329,19 +329,41 @@ void networkEventLoop() {
         struct stat fileStat;
         fstat(fOp->fileDesc, &fileStat);
         // for now 4 separate SQEs are the lower bound for a small buf pool
-        if(fileStat.st_size < 16392*4){
-            //append-slab for a small file
+        if(fileStat.st_size < 16392*8){
+            //append-slab for a small file, 16kb buffer a piece
             
-            int remCount = fileStat.st_size % 16392;
-            if(remCount == 0){
-                
-                
+            if(len<=16392){
+                slab* slb = ctx->bPool->getSlab();
+                memcpy(slb->data, data, len);
+                fOp->frameBuffer.push_back(slb);
+            }else{
+                int divCount = len / 16392;
+                for(int i = 0; i < divCount; i++){
+                    slab* slb = ctx->bPool->getSlab();
+                    memcpy(slb->data, data + i * 16392, 16392);
+                    fOp->frameBuffer.push_back(slb);
+                }
+
+                if(len - divCount * 16392 > 0){
+                    slab* slb = ctx->bPool->getSlab();
+                    memcpy(slb->data, data + divCount * 16392, len - divCount * 16392);
+                    fOp->frameBuffer.push_back(slb);
+                }
             }
-
-
-            fOp->frameBuffer = ctx->bPool->getSlab();
-            
         }
+
+        //bigger buffer range if needed to add later
+
+
+        iovec iov[fOp->frameBuffer.size()];
+        for(size_t i = 0; i < fOp->frameBuffer.size(); i++){
+            iov[i].iov_base = fOp->frameBuffer[i]->data;
+            iov[i].iov_len = 16392; // assuming each slab is 16KB
+        }
+
+
+
+
 
     };
 

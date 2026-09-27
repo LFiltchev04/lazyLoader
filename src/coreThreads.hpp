@@ -384,11 +384,9 @@ void networkEventLoop() {
 
                 pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
                 
-                for(size_t i = 0; i < fOp->frameBuffer.size(); i++){
-                    iov[i].iov_base = fOp->frameBuffer[i]->data+pOff.trimLength;
-                    iov[i].iov_len = fOp->frameBuffer[i]->written - pOff.trimLength;
-                }
-            
+                io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
+                io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
+                
             }
 
             //this is the equal to fatruncate record for files udner the buffer size

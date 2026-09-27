@@ -235,13 +235,16 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
 void networkEventLoop() {
    //gotta wipe theese
     int eventChanFd = eventfd(0, EFD_NONBLOCK);
-   
+   int clientFd = -1;
+
     //figure out how to use IORING_SETUP_SQPOLL
     struct io_uring ring;
     if(io_uring_queue_init(64,&ring,0) < 0){
         std::cout << "Liburing ring init failed" << std::endl;
         return;
     }
+
+    bufferPool* bPool = new bufferPool(100, 16);
 
     globalRing = ring;
 
@@ -250,10 +253,13 @@ void networkEventLoop() {
     activeFilePullsGlobal = &activeFilePulls;
 
     struct parseCallbackCtx{
+        bufferPool* bPool;
         std::unordered_map<int32_t, fileOp> *activeFilePulls;
         struct io_uring *ring;
         int eventChanFd;
-    } globalCBctx = {&activeFilePulls, &ring, eventChanFd};
+        int *tcpClientFd;
+    }
+    globalCBctx = {bPool, &activeFilePulls, &ring, eventChanFd, &clientFd};
    
     
     nghttp2_session_callbacks* callbacks;
@@ -311,6 +317,33 @@ void networkEventLoop() {
 
     });
 
+    auto reworkedWriter = [](nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data) -> int {
+        auto ctx = static_cast<parseCallbackCtx*>(user_data);
+        
+        auto fOp = &ctx->activeFilePulls->find(stream_id)->second;
+
+        if(fOp->fileDesc == -1){
+            fOp->fileDesc = open(fOp->filePath.c_str(), O_WRONLY, 0644);
+        }
+
+        struct stat fileStat;
+        fstat(fOp->fileDesc, &fileStat);
+        // for now 4 separate SQEs are the lower bound for a small buf pool
+        if(fileStat.st_size < 16392*4){
+            //append-slab for a small file
+            
+            int remCount = fileStat.st_size % 16392;
+            if(remCount == 0){
+                
+                
+            }
+
+
+            fOp->frameBuffer = ctx->bPool->getSlab();
+            
+        }
+
+    };
 
     nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, [](nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data) -> int {
         //could maybe manage thread contention better but it will have to work for now, lots of bugs possible if i decide to manually lock/unlock the thing
@@ -395,20 +428,21 @@ void networkEventLoop() {
 
     nghttp2_session_callbacks_set_send_callback(callbacks, [](nghttp2_session *session, const uint8_t *data, size_t length, int flags, void *user_data) -> ssize_t {
     
-        //return write(fd, data, length);
+        auto ctx = static_cast<parseCallbackCtx*>(user_data);
+        //this blocks but whatever, its just headers
+        return write(*(ctx->tcpClientFd), data, length);
     });
 
-    bufferPool* bPool = new bufferPool(100, 16);
 
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_port = htons(8080);
     inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
 
-    int client_fd = socket(AF_INET, SOCK_STREAM, 0);
+    clientFd = socket(AF_INET, SOCK_STREAM, 0);
     
 
-    connect(client_fd, (struct sockaddr*)&addr, sizeof(addr));
+    connect(clientFd, (struct sockaddr*)&addr, sizeof(addr));
 
     nghttp2_nv hdrs[] = {
         MAKE_NV(":method", "GET"),
@@ -422,7 +456,7 @@ void networkEventLoop() {
 
 
     int epollfd = epoll_create1(0);
-    epoll_ctl(epollfd, EPOLL_CTL_ADD, client_fd, nullptr);
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, clientFd, nullptr);
     epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, nullptr);
     epoll_event event;
 
@@ -471,7 +505,7 @@ void networkEventLoop() {
 
 
         for(int x = 0; x < 4; x++){
-            ssize_t readNum = read(client_fd, buffer, sizeof(buffer));
+            ssize_t readNum = read(clientFd, buffer, sizeof(buffer));
             if(readNum <= 0){
                 break;
             }

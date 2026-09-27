@@ -19,6 +19,7 @@
 #include "smallfilesBuffer.hpp"
 #include "largefilesBuffer.hpp"
 #include "filePacker.hpp"
+#include "streamDecodeWrite.hpp"
 
 //ive got waaaay too much redundant security checks revisit to drop them, this is the hot path for file loads after all
 
@@ -332,34 +333,73 @@ void networkEventLoop() {
         if(fileStat.st_size < 16392*8){
             //append-slab for a small file, 16kb buffer a piece
             
+            //first operation init
+            if(fOp->openOps == -1){
+                fOp->openOps = fileStat.st_size / 16392;
+                fOp->openOps += fileStat.st_size % 16392;
+            }
+
             if(len<=16392){
-                slab* slb = ctx->bPool->getSlab();
-                memcpy(slb->data, data, len);
+                if(fOp->frameBuffer.empty()){
+                    slab* slb = ctx->bPool->getSlab();
+                    fOp->frameBuffer.push_back(slb);
+                }
+                
+                slab* slb = fOp->frameBuffer.back();
+
+                memcpy(slb->data + slb->written, data, len);
+                slb->written += len;
+
                 fOp->frameBuffer.push_back(slb);
+                
             }else{
                 int divCount = len / 16392;
                 for(int i = 0; i < divCount; i++){
                     slab* slb = ctx->bPool->getSlab();
-                    memcpy(slb->data, data + i * 16392, 16392);
+                    memcpy(slb->data + slb->written, data + i * 16392, 16392);
+                    slb->written += 16392;
                     fOp->frameBuffer.push_back(slb);
                 }
 
                 if(len - divCount * 16392 > 0){
                     slab* slb = ctx->bPool->getSlab();
-                    memcpy(slb->data, data + divCount * 16392, len - divCount * 16392);
+                    memcpy(slb->data + slb->written, data + divCount * 16392, len - divCount * 16392);
+                    slb->written += len - divCount * 16392;
                     fOp->frameBuffer.push_back(slb);
                 }
             }
+
+
+
         }
 
         //bigger buffer range if needed to add later
 
 
+
         iovec iov[fOp->frameBuffer.size()];
-        for(size_t i = 0; i < fOp->frameBuffer.size(); i++){
-            iov[i].iov_base = fOp->frameBuffer[i]->data;
-            iov[i].iov_len = 16392; // assuming each slab is 16KB
+        for(auto it : fOp->frameBuffer){
+            //this is the full buffer callback
+            if(it->written == sizeof(it->data)){
+
+                pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
+                
+                for(size_t i = 0; i < fOp->frameBuffer.size(); i++){
+                    iov[i].iov_base = fOp->frameBuffer[i]->data+pOff.trimLength;
+                    iov[i].iov_len = fOp->frameBuffer[i]->written - pOff.trimLength;
+                }
+            
+            }
+
+            //this is the equal to fatruncate record for files udner the buffer size
+            //one open op set statically means its under buffer size anyhow
+            if((it->written < sizeof(it->data)) and (fOp->openOps == 1)){
+                pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
+                iov[0].iov_base = fOp->frameBuffer.back()->data + pOff.trimLength;
+                iov[0].iov_len = fOp->frameBuffer.back()->written - pOff.trimLength;
+            }
         }
+
 
 
 

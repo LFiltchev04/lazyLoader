@@ -1,8 +1,10 @@
 #include <stack>
-
+#include <cstdint>
 
 struct slab{
-    char data[16000];
+    uint8_t data[16384];
+    uint16_t written = 0;
+    uint8_t trim = 0;
 };
 
 

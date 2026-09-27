@@ -6,10 +6,10 @@
 struct writeCtx {
     slab* targetSlab;
     int fanotifyFd; //file descriptor to unblock
+    int fileDescriptor; //the write location for the uring handler
     int targetWrites; //number of completions needed to finish the operation
-    int filePointer;
+    int filePointer; 
     int fileOffset; 
-    int fileDescriptor;
 };
 
 template <typename T>
@@ -18,12 +18,8 @@ class staticAllocatedPool{
     uint32_t maxSize;
     uint32_t currentSize;
 
-    T pool[maxSize];
-    T* stackRef[maxSize];
+    std::stack<T*> pool;
     
-    
-    T* stackPointer;
-    void refPushdown();
 
     public:
     staticAllocatedPool(int maxSize);

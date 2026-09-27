@@ -13,6 +13,7 @@
 #include <mutex>
 #include <optional>
 #include <string>
+#include <mqueue.h>
 
 #include "blobState.hpp"
 #include "databaseSingleton.hpp"
@@ -64,7 +65,7 @@ inline std::optional<std::string> resolveFdPath(int fd) {
     return std::string(filePath, static_cast<size_t>(pathLen));
 }
 
-//
+//will have to drop this function
 void wipeFilePullState(const uint32_t filePullId){
     std::lock_guard<std::mutex> guard(activeFilePullsStateLock);
     
@@ -79,7 +80,6 @@ void wipeFilePullState(const uint32_t filePullId){
             activeFilePullsGlobal->erase(it);
         }
     }
-    
 }
 
 
@@ -171,7 +171,7 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
 
         for (int i = 0; i < n; ++i) {
             if (events[i].data.fd == uringToFanotifyGlobal){
-                                
+                
                 unblockOp.response = FAN_ALLOW;
                 //have to figure out whether i can dig out the right fd, its somewhere in the contexts
                 //unblockOp.fd = meta->fd;
@@ -235,12 +235,13 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
 
 void networkEventLoop() {
    //gotta wipe theese
-    int eventChanFd = eventfd(0, EFD_NONBLOCK);
-   int clientFd = -1;
+    int eventChanFd = mq_open("/toNetwork", O_CREAT | O_RDWR, 0644);
+    int clientFd = -1;
 
+    
     //figure out how to use IORING_SETUP_SQPOLL
     struct io_uring ring;
-    if(io_uring_queue_init(64,&ring,0) < 0){
+    if(io_uring_queue_init(8192,&ring,0) < 0){
         std::cout << "Liburing ring init failed" << std::endl;
         return;
     }
@@ -372,35 +373,40 @@ void networkEventLoop() {
 
 
         }
-
+        
         //bigger buffer range if needed to add later
 
 
 
         iovec iov[fOp->frameBuffer.size()];
         for(auto it : fOp->frameBuffer){
-            //this is the full buffer callback
+            if(it->written == 0){ continue; }
+            if(it->written < sizeof(it->data)){ throw std::runtime_error("Slab was nullptr in chunk_recv"); }
+
+            //this is the full buffer path
             if(it->written == sizeof(it->data)){
 
                 pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
                 
                 io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
                 io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
-                
+                io_uring_sqe_set_data(sqe, &fOp);
+            
+                io_uring_submit(ctx->ring);
             }
 
-            //this is the equal to fatruncate record for files udner the buffer size
+            //this is the equal to fatruncate record for files under the buffer size
             //one open op set statically means its under buffer size anyhow
             if((it->written < sizeof(it->data)) and (fOp->openOps == 1)){
                 pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
-                iov[0].iov_base = fOp->frameBuffer.back()->data + pOff.trimLength;
-                iov[0].iov_len = fOp->frameBuffer.back()->written - pOff.trimLength;
+                
+                io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
+                io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
+                io_uring_sqe_set_data(sqe, &fOp);
+                
+                io_uring_submit(ctx->ring);
             }
         }
-
-
-
-
 
 
     };
@@ -443,10 +449,11 @@ void networkEventLoop() {
 
                 //theese can be submitted 
                 io_uring_prep_write(sqe, it->second.fileDesc, &data[x], len, it->second.filePosPointer);
-                io_uring_submit(&ring);
                 it->second.filePosPointer += len;
                 it->second.openOps++;
                 
+                io_uring_submit(&ring);
+
                 io_uring_cqe* cqe;
 
 
@@ -579,6 +586,33 @@ void networkEventLoop() {
     }
 
 }
+
+
+auto uringCompletionHndlrNew = [](io_uring_cqe* cqe){
+    unsigned head;
+    io_uring_for_each_cqe(&globalRing, head, cqe){
+        uint8_t res = io_uring_peek_cqe(&globalRing, &cqe);
+        if(res != 0){
+            throw std::runtime_error("io_uring_peek_cqe failed with status: " + std::to_string(res));
+        }
+        fileOp* fOp = static_cast<fileOp*>(io_uring_cqe_get_data(cqe));
+
+        mq_send()
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

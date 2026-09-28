@@ -5,6 +5,7 @@
 #include <coroutine>
 #include <unordered_map>
 #include <cinttypes>
+#include <fcntl.h>
 
 #include <lmdb.h>
 #include "blobState.hpp"

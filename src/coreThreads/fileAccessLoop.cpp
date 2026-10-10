@@ -1,13 +1,12 @@
 #include "fileAccessLoop.hpp"
 
-void fileAccessEventLoop(databaseSingleton* dbSingleton){
+void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, int uringToFanotifyGlobal){
     std::unordered_set<std::string> trackedFiles;
     fanotifyToNetwork = eventfd(50, 0);
 
     
-    int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC | FAN_REPORT_DFID_NAME, O_RDONLY | O_LARGEFILE);
-    FAN_REPORT_DFID_NAME
-    fanotifyGlobalFd = fanFd;
+    int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC, O_RDONLY | O_LARGEFILE);
+
 
     if(fanFd < 0){
         throw new std::runtime_error("fanotify_init failed");
@@ -75,7 +74,6 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
 
                 if (meta->fd < 0) continue;
 
-                auto filePath = resolveFdPath(meta->fd);
                 if (filePath) {
                     trackedFiles.insert(*filePath);
                     

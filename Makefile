@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/llf/faNotify
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -84,6 +94,51 @@ rebuild_cache:
 # Special rule for the target rebuild_cache
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"gmock\" \"gtest\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -117,6 +172,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named LazyFetcherLib
+
+# Build rule for target.
+LazyFetcherLib: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 LazyFetcherLib
+.PHONY : LazyFetcherLib
+
+# fast build rule for target.
+LazyFetcherLib/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/build
+.PHONY : LazyFetcherLib/fast
+
+#=============================================================================
 # Target rules for targets named LazyFetcher
 
 # Build rule for target.
@@ -128,6 +196,71 @@ LazyFetcher: cmake_check_build_system
 LazyFetcher/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/build
 .PHONY : LazyFetcher/fast
+
+#=============================================================================
+# Target rules for targets named LazyFetcherTests
+
+# Build rule for target.
+LazyFetcherTests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 LazyFetcherTests
+.PHONY : LazyFetcherTests
+
+# fast build rule for target.
+LazyFetcherTests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/build
+.PHONY : LazyFetcherTests/fast
+
+#=============================================================================
+# Target rules for targets named gmock
+
+# Build rule for target.
+gmock: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock
+.PHONY : gmock
+
+# fast build rule for target.
+gmock/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build
+.PHONY : gmock/fast
+
+#=============================================================================
+# Target rules for targets named gmock_main
+
+# Build rule for target.
+gmock_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gmock_main
+.PHONY : gmock_main
+
+# fast build rule for target.
+gmock_main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
+.PHONY : gmock_main/fast
+
+#=============================================================================
+# Target rules for targets named gtest
+
+# Build rule for target.
+gtest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest
+.PHONY : gtest
+
+# fast build rule for target.
+gtest/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build
+.PHONY : gtest/fast
+
+#=============================================================================
+# Target rules for targets named gtest_main
+
+# Build rule for target.
+gtest_main: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gtest_main
+.PHONY : gtest_main
+
+# fast build rule for target.
+gtest_main/fast:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
+.PHONY : gtest_main/fast
 
 main.o: main.cpp.o
 .PHONY : main.o
@@ -158,7 +291,7 @@ src/addMarks.o: src/addMarks.cpp.o
 
 # target to build an object file
 src/addMarks.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/addMarks.cpp.o
 .PHONY : src/addMarks.cpp.o
 
 src/addMarks.i: src/addMarks.cpp.i
@@ -166,7 +299,7 @@ src/addMarks.i: src/addMarks.cpp.i
 
 # target to preprocess a source file
 src/addMarks.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/addMarks.cpp.i
 .PHONY : src/addMarks.cpp.i
 
 src/addMarks.s: src/addMarks.cpp.s
@@ -174,7 +307,7 @@ src/addMarks.s: src/addMarks.cpp.s
 
 # target to generate assembly for a file
 src/addMarks.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/addMarks.cpp.s
 .PHONY : src/addMarks.cpp.s
 
 src/blobState.o: src/blobState.cpp.o
@@ -182,7 +315,7 @@ src/blobState.o: src/blobState.cpp.o
 
 # target to build an object file
 src/blobState.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/blobState.cpp.o
 .PHONY : src/blobState.cpp.o
 
 src/blobState.i: src/blobState.cpp.i
@@ -190,7 +323,7 @@ src/blobState.i: src/blobState.cpp.i
 
 # target to preprocess a source file
 src/blobState.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/blobState.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/blobState.cpp.i
 .PHONY : src/blobState.cpp.i
 
 src/blobState.s: src/blobState.cpp.s
@@ -198,7 +331,7 @@ src/blobState.s: src/blobState.cpp.s
 
 # target to generate assembly for a file
 src/blobState.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/blobState.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/blobState.cpp.s
 .PHONY : src/blobState.cpp.s
 
 src/containerClass.o: src/containerClass.cpp.o
@@ -206,7 +339,7 @@ src/containerClass.o: src/containerClass.cpp.o
 
 # target to build an object file
 src/containerClass.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/containerClass.cpp.o
 .PHONY : src/containerClass.cpp.o
 
 src/containerClass.i: src/containerClass.cpp.i
@@ -214,7 +347,7 @@ src/containerClass.i: src/containerClass.cpp.i
 
 # target to preprocess a source file
 src/containerClass.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/containerClass.cpp.i
 .PHONY : src/containerClass.cpp.i
 
 src/containerClass.s: src/containerClass.cpp.s
@@ -222,7 +355,7 @@ src/containerClass.s: src/containerClass.cpp.s
 
 # target to generate assembly for a file
 src/containerClass.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/containerClass.cpp.s
 .PHONY : src/containerClass.cpp.s
 
 src/databaseSingleton.o: src/databaseSingleton.cpp.o
@@ -230,7 +363,7 @@ src/databaseSingleton.o: src/databaseSingleton.cpp.o
 
 # target to build an object file
 src/databaseSingleton.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/databaseSingleton.cpp.o
 .PHONY : src/databaseSingleton.cpp.o
 
 src/databaseSingleton.i: src/databaseSingleton.cpp.i
@@ -238,7 +371,7 @@ src/databaseSingleton.i: src/databaseSingleton.cpp.i
 
 # target to preprocess a source file
 src/databaseSingleton.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/databaseSingleton.cpp.i
 .PHONY : src/databaseSingleton.cpp.i
 
 src/databaseSingleton.s: src/databaseSingleton.cpp.s
@@ -246,15 +379,87 @@ src/databaseSingleton.s: src/databaseSingleton.cpp.s
 
 # target to generate assembly for a file
 src/databaseSingleton.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/databaseSingleton.cpp.s
 .PHONY : src/databaseSingleton.cpp.s
+
+src/genericStatAlloc.o: src/genericStatAlloc.cpp.o
+.PHONY : src/genericStatAlloc.o
+
+# target to build an object file
+src/genericStatAlloc.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/genericStatAlloc.cpp.o
+.PHONY : src/genericStatAlloc.cpp.o
+
+src/genericStatAlloc.i: src/genericStatAlloc.cpp.i
+.PHONY : src/genericStatAlloc.i
+
+# target to preprocess a source file
+src/genericStatAlloc.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/genericStatAlloc.cpp.i
+.PHONY : src/genericStatAlloc.cpp.i
+
+src/genericStatAlloc.s: src/genericStatAlloc.cpp.s
+.PHONY : src/genericStatAlloc.s
+
+# target to generate assembly for a file
+src/genericStatAlloc.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/genericStatAlloc.cpp.s
+.PHONY : src/genericStatAlloc.cpp.s
+
+src/largefilesBuffer.o: src/largefilesBuffer.cpp.o
+.PHONY : src/largefilesBuffer.o
+
+# target to build an object file
+src/largefilesBuffer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/largefilesBuffer.cpp.o
+.PHONY : src/largefilesBuffer.cpp.o
+
+src/largefilesBuffer.i: src/largefilesBuffer.cpp.i
+.PHONY : src/largefilesBuffer.i
+
+# target to preprocess a source file
+src/largefilesBuffer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/largefilesBuffer.cpp.i
+.PHONY : src/largefilesBuffer.cpp.i
+
+src/largefilesBuffer.s: src/largefilesBuffer.cpp.s
+.PHONY : src/largefilesBuffer.s
+
+# target to generate assembly for a file
+src/largefilesBuffer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/largefilesBuffer.cpp.s
+.PHONY : src/largefilesBuffer.cpp.s
+
+src/smallfilesBuffer.o: src/smallfilesBuffer.cpp.o
+.PHONY : src/smallfilesBuffer.o
+
+# target to build an object file
+src/smallfilesBuffer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/smallfilesBuffer.cpp.o
+.PHONY : src/smallfilesBuffer.cpp.o
+
+src/smallfilesBuffer.i: src/smallfilesBuffer.cpp.i
+.PHONY : src/smallfilesBuffer.i
+
+# target to preprocess a source file
+src/smallfilesBuffer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/smallfilesBuffer.cpp.i
+.PHONY : src/smallfilesBuffer.cpp.i
+
+src/smallfilesBuffer.s: src/smallfilesBuffer.cpp.s
+.PHONY : src/smallfilesBuffer.s
+
+# target to generate assembly for a file
+src/smallfilesBuffer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/smallfilesBuffer.cpp.s
+.PHONY : src/smallfilesBuffer.cpp.s
 
 src/sparseAllocator.o: src/sparseAllocator.cpp.o
 .PHONY : src/sparseAllocator.o
 
 # target to build an object file
 src/sparseAllocator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/sparseAllocator.cpp.o
 .PHONY : src/sparseAllocator.cpp.o
 
 src/sparseAllocator.i: src/sparseAllocator.cpp.i
@@ -262,7 +467,7 @@ src/sparseAllocator.i: src/sparseAllocator.cpp.i
 
 # target to preprocess a source file
 src/sparseAllocator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/sparseAllocator.cpp.i
 .PHONY : src/sparseAllocator.cpp.i
 
 src/sparseAllocator.s: src/sparseAllocator.cpp.s
@@ -270,8 +475,32 @@ src/sparseAllocator.s: src/sparseAllocator.cpp.s
 
 # target to generate assembly for a file
 src/sparseAllocator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/sparseAllocator.cpp.s
 .PHONY : src/sparseAllocator.cpp.s
+
+tests/sanity.o: tests/sanity.cpp.o
+.PHONY : tests/sanity.o
+
+# target to build an object file
+tests/sanity.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/sanity.cpp.o
+.PHONY : tests/sanity.cpp.o
+
+tests/sanity.i: tests/sanity.cpp.i
+.PHONY : tests/sanity.i
+
+# target to preprocess a source file
+tests/sanity.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/sanity.cpp.i
+.PHONY : tests/sanity.cpp.i
+
+tests/sanity.s: tests/sanity.cpp.s
+.PHONY : tests/sanity.s
+
+# target to generate assembly for a file
+tests/sanity.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/sanity.cpp.s
+.PHONY : tests/sanity.cpp.s
 
 # Help Target
 help:
@@ -280,8 +509,19 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... LazyFetcher"
+	@echo "... LazyFetcherLib"
+	@echo "... LazyFetcherTests"
+	@echo "... gmock"
+	@echo "... gmock_main"
+	@echo "... gtest"
+	@echo "... gtest_main"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
@@ -297,9 +537,21 @@ help:
 	@echo "... src/databaseSingleton.o"
 	@echo "... src/databaseSingleton.i"
 	@echo "... src/databaseSingleton.s"
+	@echo "... src/genericStatAlloc.o"
+	@echo "... src/genericStatAlloc.i"
+	@echo "... src/genericStatAlloc.s"
+	@echo "... src/largefilesBuffer.o"
+	@echo "... src/largefilesBuffer.i"
+	@echo "... src/largefilesBuffer.s"
+	@echo "... src/smallfilesBuffer.o"
+	@echo "... src/smallfilesBuffer.i"
+	@echo "... src/smallfilesBuffer.s"
 	@echo "... src/sparseAllocator.o"
 	@echo "... src/sparseAllocator.i"
 	@echo "... src/sparseAllocator.s"
+	@echo "... tests/sanity.o"
+	@echo "... tests/sanity.i"
+	@echo "... tests/sanity.s"
 .PHONY : help
 
 

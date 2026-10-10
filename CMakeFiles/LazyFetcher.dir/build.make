@@ -83,98 +83,19 @@ CMakeFiles/LazyFetcher.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LazyFetcher.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/llf/faNotify/main.cpp -o CMakeFiles/LazyFetcher.dir/main.cpp.s
 
-CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o: CMakeFiles/LazyFetcher.dir/flags.make
-CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o: src/addMarks.cpp
-CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o: CMakeFiles/LazyFetcher.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o -MF CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o.d -o CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o -c /home/llf/faNotify/src/addMarks.cpp
-
-CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/llf/faNotify/src/addMarks.cpp > CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.i
-
-CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/llf/faNotify/src/addMarks.cpp -o CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.s
-
-CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o: CMakeFiles/LazyFetcher.dir/flags.make
-CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o: src/blobState.cpp
-CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o: CMakeFiles/LazyFetcher.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o -MF CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o.d -o CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o -c /home/llf/faNotify/src/blobState.cpp
-
-CMakeFiles/LazyFetcher.dir/src/blobState.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LazyFetcher.dir/src/blobState.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/llf/faNotify/src/blobState.cpp > CMakeFiles/LazyFetcher.dir/src/blobState.cpp.i
-
-CMakeFiles/LazyFetcher.dir/src/blobState.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LazyFetcher.dir/src/blobState.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/llf/faNotify/src/blobState.cpp -o CMakeFiles/LazyFetcher.dir/src/blobState.cpp.s
-
-CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o: CMakeFiles/LazyFetcher.dir/flags.make
-CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o: src/containerClass.cpp
-CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o: CMakeFiles/LazyFetcher.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o -MF CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o.d -o CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o -c /home/llf/faNotify/src/containerClass.cpp
-
-CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/llf/faNotify/src/containerClass.cpp > CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.i
-
-CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/llf/faNotify/src/containerClass.cpp -o CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.s
-
-CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o: CMakeFiles/LazyFetcher.dir/flags.make
-CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o: src/databaseSingleton.cpp
-CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o: CMakeFiles/LazyFetcher.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o -MF CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o.d -o CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o -c /home/llf/faNotify/src/databaseSingleton.cpp
-
-CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/llf/faNotify/src/databaseSingleton.cpp > CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.i
-
-CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/llf/faNotify/src/databaseSingleton.cpp -o CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.s
-
-CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o: CMakeFiles/LazyFetcher.dir/flags.make
-CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o: src/sparseAllocator.cpp
-CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o: CMakeFiles/LazyFetcher.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o -MF CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o.d -o CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o -c /home/llf/faNotify/src/sparseAllocator.cpp
-
-CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/llf/faNotify/src/sparseAllocator.cpp > CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.i
-
-CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/llf/faNotify/src/sparseAllocator.cpp -o CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.s
-
 # Object files for target LazyFetcher
 LazyFetcher_OBJECTS = \
-"CMakeFiles/LazyFetcher.dir/main.cpp.o" \
-"CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o" \
-"CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o" \
-"CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o" \
-"CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o" \
-"CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o"
+"CMakeFiles/LazyFetcher.dir/main.cpp.o"
 
 # External object files for target LazyFetcher
 LazyFetcher_EXTERNAL_OBJECTS =
 
 LazyFetcher: CMakeFiles/LazyFetcher.dir/main.cpp.o
-LazyFetcher: CMakeFiles/LazyFetcher.dir/src/addMarks.cpp.o
-LazyFetcher: CMakeFiles/LazyFetcher.dir/src/blobState.cpp.o
-LazyFetcher: CMakeFiles/LazyFetcher.dir/src/containerClass.cpp.o
-LazyFetcher: CMakeFiles/LazyFetcher.dir/src/databaseSingleton.cpp.o
-LazyFetcher: CMakeFiles/LazyFetcher.dir/src/sparseAllocator.cpp.o
 LazyFetcher: CMakeFiles/LazyFetcher.dir/build.make
+LazyFetcher: libLazyFetcherLib.a
 LazyFetcher: /usr/lib/x86_64-linux-gnu/liblmdb.so
 LazyFetcher: CMakeFiles/LazyFetcher.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable LazyFetcher"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable LazyFetcher"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/LazyFetcher.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

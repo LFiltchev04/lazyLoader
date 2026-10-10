@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/llf/faNotify/include
+CXX_INCLUDES = -I/home/llf/faNotify/include -I/home/llf/faNotify/src
 
 CXX_FLAGS = -std=gnu++20
 

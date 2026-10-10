@@ -12,4 +12,4 @@
 #include "../databaseSingleton.hpp"
 
 
-void fileAccessEventLoop(databaseSingleton* dbSingleton);
+void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork);

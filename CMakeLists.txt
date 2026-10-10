@@ -11,10 +11,23 @@ find_library(LMDB_LIBRARY NAMES lmdb REQUIRED)
 find_path(LMDB_INCLUDE_DIR NAMES lmdb.h REQUIRED)
 
 file(GLOB SOURCES "src/*.cpp")
-add_executable(LazyFetcher main.cpp ${SOURCES})
+add_library(LazyFetcherLib STATIC ${SOURCES})
+target_include_directories(LazyFetcherLib PUBLIC include src ${LMDB_INCLUDE_DIR} ${NGHTTP2_INCLUDE_DIRS})
+target_link_libraries(LazyFetcherLib PUBLIC ${LMDB_LIBRARY} ${NGHTTP2_LIBRARIES})
 
-target_include_directories(LazyFetcher PRIVATE include ${LMDB_INCLUDE_DIR})
-target_link_libraries(LazyFetcher PRIVATE ${LMDB_LIBRARY})
+add_executable(LazyFetcher main.cpp)
+target_link_libraries(LazyFetcher PRIVATE LazyFetcherLib)
 
-target_include_directories(LazyFetcher PRIVATE ${NGHTTP2_INCLUDE_DIRS})
-target_link_libraries(LazyFetcher PRIVATE ${NGHTTP2_LIBRARIES})
+# Tests
+include(FetchContent)
+FetchContent_Declare(googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+include(GoogleTest)
+file(GLOB TEST_SOURCES "tests/*.cpp")
+add_executable(LazyFetcherTests ${TEST_SOURCES})
+target_link_libraries(LazyFetcherTests PRIVATE LazyFetcherLib GTest::gtest_main)
+gtest_discover_tests(LazyFetcherTests)

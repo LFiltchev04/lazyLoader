@@ -5,7 +5,8 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
     fanotifyToNetwork = eventfd(50, 0);
 
     
-    int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC, O_RDONLY | O_LARGEFILE);
+    int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC | FAN_REPORT_DFID_NAME, O_RDONLY | O_LARGEFILE);
+    FAN_REPORT_DFID_NAME
     fanotifyGlobalFd = fanFd;
 
     if(fanFd < 0){
@@ -69,6 +70,8 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton){
                 //    std::cerr << "fanotify metadata version mismatch\n";
                 //    continue;
                 //}
+
+                
 
                 if (meta->fd < 0) continue;
 

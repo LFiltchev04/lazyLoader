@@ -74,6 +74,7 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, 
 
                 if (meta->fd < 0) continue;
 
+                std::optional<std::string> filePath = resolveFdPath(meta->fd);
                 if (filePath) {
                     trackedFiles.insert(*filePath);
                     

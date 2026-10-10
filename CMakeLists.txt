@@ -10,7 +10,7 @@ pkg_check_modules(NGHTTP2 REQUIRED libnghttp2)
 find_library(LMDB_LIBRARY NAMES lmdb REQUIRED)
 find_path(LMDB_INCLUDE_DIR NAMES lmdb.h REQUIRED)
 
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_library(LazyFetcherLib STATIC ${SOURCES})
 target_include_directories(LazyFetcherLib PUBLIC include src ${LMDB_INCLUDE_DIR} ${NGHTTP2_INCLUDE_DIRS})
 target_link_libraries(LazyFetcherLib PUBLIC ${LMDB_LIBRARY} ${NGHTTP2_LIBRARIES})

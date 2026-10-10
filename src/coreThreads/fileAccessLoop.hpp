@@ -8,8 +8,9 @@
 #include <limits.h>
 #include <iostream>
 #include <sys/fanotify.h>
+#include <optional>
 
 #include "../databaseSingleton.hpp"
-
+#include "../utils/fanotifyResolve.hpp"
 
 void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork);

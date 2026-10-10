@@ -358,6 +358,54 @@ src/containerClass.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/containerClass.cpp.s
 .PHONY : src/containerClass.cpp.s
 
+src/coreThreads/fileAccessLoop.o: src/coreThreads/fileAccessLoop.cpp.o
+.PHONY : src/coreThreads/fileAccessLoop.o
+
+# target to build an object file
+src/coreThreads/fileAccessLoop.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/coreThreads/fileAccessLoop.cpp.o
+.PHONY : src/coreThreads/fileAccessLoop.cpp.o
+
+src/coreThreads/fileAccessLoop.i: src/coreThreads/fileAccessLoop.cpp.i
+.PHONY : src/coreThreads/fileAccessLoop.i
+
+# target to preprocess a source file
+src/coreThreads/fileAccessLoop.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/coreThreads/fileAccessLoop.cpp.i
+.PHONY : src/coreThreads/fileAccessLoop.cpp.i
+
+src/coreThreads/fileAccessLoop.s: src/coreThreads/fileAccessLoop.cpp.s
+.PHONY : src/coreThreads/fileAccessLoop.s
+
+# target to generate assembly for a file
+src/coreThreads/fileAccessLoop.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/coreThreads/fileAccessLoop.cpp.s
+.PHONY : src/coreThreads/fileAccessLoop.cpp.s
+
+src/coreThreads/pullRequestInit.o: src/coreThreads/pullRequestInit.cpp.o
+.PHONY : src/coreThreads/pullRequestInit.o
+
+# target to build an object file
+src/coreThreads/pullRequestInit.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/coreThreads/pullRequestInit.cpp.o
+.PHONY : src/coreThreads/pullRequestInit.cpp.o
+
+src/coreThreads/pullRequestInit.i: src/coreThreads/pullRequestInit.cpp.i
+.PHONY : src/coreThreads/pullRequestInit.i
+
+# target to preprocess a source file
+src/coreThreads/pullRequestInit.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/coreThreads/pullRequestInit.cpp.i
+.PHONY : src/coreThreads/pullRequestInit.cpp.i
+
+src/coreThreads/pullRequestInit.s: src/coreThreads/pullRequestInit.cpp.s
+.PHONY : src/coreThreads/pullRequestInit.s
+
+# target to generate assembly for a file
+src/coreThreads/pullRequestInit.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/coreThreads/pullRequestInit.cpp.s
+.PHONY : src/coreThreads/pullRequestInit.cpp.s
+
 src/databaseSingleton.o: src/databaseSingleton.cpp.o
 .PHONY : src/databaseSingleton.o
 
@@ -406,30 +454,6 @@ src/genericStatAlloc.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/genericStatAlloc.cpp.s
 .PHONY : src/genericStatAlloc.cpp.s
 
-src/largefilesBuffer.o: src/largefilesBuffer.cpp.o
-.PHONY : src/largefilesBuffer.o
-
-# target to build an object file
-src/largefilesBuffer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/largefilesBuffer.cpp.o
-.PHONY : src/largefilesBuffer.cpp.o
-
-src/largefilesBuffer.i: src/largefilesBuffer.cpp.i
-.PHONY : src/largefilesBuffer.i
-
-# target to preprocess a source file
-src/largefilesBuffer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/largefilesBuffer.cpp.i
-.PHONY : src/largefilesBuffer.cpp.i
-
-src/largefilesBuffer.s: src/largefilesBuffer.cpp.s
-.PHONY : src/largefilesBuffer.s
-
-# target to generate assembly for a file
-src/largefilesBuffer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/largefilesBuffer.cpp.s
-.PHONY : src/largefilesBuffer.cpp.s
-
 src/smallfilesBuffer.o: src/smallfilesBuffer.cpp.o
 .PHONY : src/smallfilesBuffer.o
 
@@ -477,6 +501,78 @@ src/sparseAllocator.s: src/sparseAllocator.cpp.s
 src/sparseAllocator.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/sparseAllocator.cpp.s
 .PHONY : src/sparseAllocator.cpp.s
+
+src/utils/fanotifyResolve.o: src/utils/fanotifyResolve.cpp.o
+.PHONY : src/utils/fanotifyResolve.o
+
+# target to build an object file
+src/utils/fanotifyResolve.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/fanotifyResolve.cpp.o
+.PHONY : src/utils/fanotifyResolve.cpp.o
+
+src/utils/fanotifyResolve.i: src/utils/fanotifyResolve.cpp.i
+.PHONY : src/utils/fanotifyResolve.i
+
+# target to preprocess a source file
+src/utils/fanotifyResolve.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/fanotifyResolve.cpp.i
+.PHONY : src/utils/fanotifyResolve.cpp.i
+
+src/utils/fanotifyResolve.s: src/utils/fanotifyResolve.cpp.s
+.PHONY : src/utils/fanotifyResolve.s
+
+# target to generate assembly for a file
+src/utils/fanotifyResolve.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/fanotifyResolve.cpp.s
+.PHONY : src/utils/fanotifyResolve.cpp.s
+
+tests/fanotifyFdName_resolv.o: tests/fanotifyFdName_resolv.cpp.o
+.PHONY : tests/fanotifyFdName_resolv.o
+
+# target to build an object file
+tests/fanotifyFdName_resolv.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyFdName_resolv.cpp.o
+.PHONY : tests/fanotifyFdName_resolv.cpp.o
+
+tests/fanotifyFdName_resolv.i: tests/fanotifyFdName_resolv.cpp.i
+.PHONY : tests/fanotifyFdName_resolv.i
+
+# target to preprocess a source file
+tests/fanotifyFdName_resolv.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyFdName_resolv.cpp.i
+.PHONY : tests/fanotifyFdName_resolv.cpp.i
+
+tests/fanotifyFdName_resolv.s: tests/fanotifyFdName_resolv.cpp.s
+.PHONY : tests/fanotifyFdName_resolv.s
+
+# target to generate assembly for a file
+tests/fanotifyFdName_resolv.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyFdName_resolv.cpp.s
+.PHONY : tests/fanotifyFdName_resolv.cpp.s
+
+tests/fanotifyTest.o: tests/fanotifyTest.cpp.o
+.PHONY : tests/fanotifyTest.o
+
+# target to build an object file
+tests/fanotifyTest.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyTest.cpp.o
+.PHONY : tests/fanotifyTest.cpp.o
+
+tests/fanotifyTest.i: tests/fanotifyTest.cpp.i
+.PHONY : tests/fanotifyTest.i
+
+# target to preprocess a source file
+tests/fanotifyTest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyTest.cpp.i
+.PHONY : tests/fanotifyTest.cpp.i
+
+tests/fanotifyTest.s: tests/fanotifyTest.cpp.s
+.PHONY : tests/fanotifyTest.s
+
+# target to generate assembly for a file
+tests/fanotifyTest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyTest.cpp.s
+.PHONY : tests/fanotifyTest.cpp.s
 
 tests/sanity.o: tests/sanity.cpp.o
 .PHONY : tests/sanity.o
@@ -534,21 +630,33 @@ help:
 	@echo "... src/containerClass.o"
 	@echo "... src/containerClass.i"
 	@echo "... src/containerClass.s"
+	@echo "... src/coreThreads/fileAccessLoop.o"
+	@echo "... src/coreThreads/fileAccessLoop.i"
+	@echo "... src/coreThreads/fileAccessLoop.s"
+	@echo "... src/coreThreads/pullRequestInit.o"
+	@echo "... src/coreThreads/pullRequestInit.i"
+	@echo "... src/coreThreads/pullRequestInit.s"
 	@echo "... src/databaseSingleton.o"
 	@echo "... src/databaseSingleton.i"
 	@echo "... src/databaseSingleton.s"
 	@echo "... src/genericStatAlloc.o"
 	@echo "... src/genericStatAlloc.i"
 	@echo "... src/genericStatAlloc.s"
-	@echo "... src/largefilesBuffer.o"
-	@echo "... src/largefilesBuffer.i"
-	@echo "... src/largefilesBuffer.s"
 	@echo "... src/smallfilesBuffer.o"
 	@echo "... src/smallfilesBuffer.i"
 	@echo "... src/smallfilesBuffer.s"
 	@echo "... src/sparseAllocator.o"
 	@echo "... src/sparseAllocator.i"
 	@echo "... src/sparseAllocator.s"
+	@echo "... src/utils/fanotifyResolve.o"
+	@echo "... src/utils/fanotifyResolve.i"
+	@echo "... src/utils/fanotifyResolve.s"
+	@echo "... tests/fanotifyFdName_resolv.o"
+	@echo "... tests/fanotifyFdName_resolv.i"
+	@echo "... tests/fanotifyFdName_resolv.s"
+	@echo "... tests/fanotifyTest.o"
+	@echo "... tests/fanotifyTest.i"
+	@echo "... tests/fanotifyTest.s"
 	@echo "... tests/sanity.o"
 	@echo "... tests/sanity.i"
 	@echo "... tests/sanity.s"

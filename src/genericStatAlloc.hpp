@@ -12,10 +12,9 @@ struct writeCtx {
     int fileOffset; 
 };
 
-template <typename T>
+template <typename T, uint32_t maxSize>
 class staticAllocatedPool{
     std::mutex poolLock;
-    uint32_t maxSize;
     uint32_t currentSize;
     T pool[maxSize];
 
@@ -23,7 +22,7 @@ class staticAllocatedPool{
     
 
     public:
-    staticAllocatedPool(int maxSize);
+    staticAllocatedPool();
 
     void get(T*);
     void yield(T* item);

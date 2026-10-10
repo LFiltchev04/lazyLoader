@@ -16,7 +16,6 @@
 #include "blobState.hpp"
 #include "databaseSingleton.hpp"
 #include "smallfilesBuffer.hpp"
-#include "largefilesBuffer.hpp"
 #include "filePacker.hpp"
 #include "streamDecodeWrite.hpp"
 
@@ -51,34 +50,8 @@ std::mutex activeFilePullsStateLock;
 
 
 //goes to proc to resolve the file name, is very convenient because the fanotify file descriptor passes through the eventfd channels without having to keep separate lookups
-inline std::optional<std::string> resolveFdPath(int fd) {
-    char linkPath[32];
-    char filePath[PATH_MAX];
-    std::snprintf(linkPath, sizeof(linkPath), "/proc/self/fd/%d", fd);
-    ssize_t pathLen = readlink(linkPath, filePath, sizeof(filePath) - 1);
-    if (pathLen < 0) {
-        return std::nullopt;
-    }
-    //construct from length directly, readlink does not null-terminate and this avoids the extra strlen
-    return std::string(filePath, static_cast<size_t>(pathLen));
-}
 
-//will have to drop this function
-void wipeFilePullState(const uint32_t filePullId){
-    std::lock_guard<std::mutex> guard(activeFilePullsStateLock);
-    
-    auto it = activeFilePullsGlobal->find(filePullId);
-    if(it != activeFilePullsGlobal->end()){
-        
 
-        if(it->second.openOps == 0){
-            eventfd_t chanMsg = reinterpret_cast<eventfd_t>(&it->second.fanotifyFd);
-            //important to note the actual hashmap wipe happens in the event handler, this is just a helper for emitting events to chan
-            eventfd_write(fanotifyToNetwork, chanMsg);
-            activeFilePullsGlobal->erase(it);
-        }
-    }
-}
 
 
 

@@ -34,4 +34,3 @@ void staticAllocatedPool<T>::yield(T* item) {
     std::lock_guard<std::mutex> lock(poolLock);
     poolRef.push(item);
 }
-

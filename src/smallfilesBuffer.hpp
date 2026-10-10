@@ -23,5 +23,4 @@ class bufferPool {
     slab* getSlab();
     void freeSlab(slab* slab);
     bool poolExhausted();
-
 };

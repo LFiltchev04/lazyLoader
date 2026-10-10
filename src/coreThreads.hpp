@@ -8,12 +8,10 @@
 #include <fcntl.h>
 #include <liburing.h>
 #include <nghttp2/nghttp2.h>
-#include <sys/eventfd.h>
 #include <unordered_set>
 #include <mutex>
 #include <optional>
 #include <string>
-#include <mqueue.h>
 
 #include "blobState.hpp"
 #include "databaseSingleton.hpp"
@@ -84,149 +82,25 @@ void wipeFilePullState(const uint32_t filePullId){
 
 
 
-//here the pre-allocation happens, it does lmdb calls to persist the state and registers it, is inited by the modified containerd
-void pullRequestInit(databaseSingleton* dbSingleton) {
-    //this thing ought to handle the incoming request for files from unix socket and initialize the 
-
-    //i am making up this var here, its a placeholder for the unix socket that it ought to be set in some config
-    std::string sockPath = "/tmp/unscrewLater.sock";
-    int socFd = socket(AF_UNIX, SOCK_DGRAM, 0);
-
-    int epfd = epoll_create1(0);
-    epoll_event ev;
-    ev.events = EPOLLIN;
-    ev.data.fd = socFd;
-    epoll_ctl(epfd, EPOLL_CTL_ADD, socFd, &ev);
-
-
-    //running the assumption a single recv can drain it in one go, its dgram under minimums by almost any metric so i hope its ok?
-    char messageIn[42];
-    while (true) {
-        epoll_wait(epfd, &ev, 1, -1);
-
-        ssize_t status = recv(socFd, &messageIn, sizeof(messageIn), 0);
-        if (status < 0) {
-            // Handle error
-            continue;
-        }
-
-        blobState newBlob(messageIn);
-
-        if(dbSingleton->blobPresent(messageIn)){
-            std::cout << "Attempted to register a blob already present in the DB" << std::endl;
-            continue;
-        }
-
-        dbSingleton->registerNewBlob(messageIn);
-        
-        //this ought to tag the blob for fanotify after materialization and dial in the even loop for network pulls with the full path? 
-        
-    }
-}
 
 
 
 
 
-void fileAccessEventLoop(databaseSingleton* dbSingleton){
-    std::unordered_set<std::string> trackedFiles;
-    fanotifyToNetwork = eventfd(50, 0);
-
-    
-    int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC, O_RDONLY | O_LARGEFILE);
-    fanotifyGlobalFd = fanFd;
-
-    if(fanFd < 0){
-        throw new std::runtime_error("fanotify_init failed");
-    }
-
-    int epFd = epoll_create1(0);
-    if(epFd < 0){
-        throw new std::runtime_error("epoll_create1 failed");
-    }
-
-    //unblock logic for fanotify events
-    struct fanotify_response unblockOp;
-    
-    //main network loop fd
-    epoll_event events[1];
-    epoll_ctl(epFd, EPOLL_CTL_ADD, fanFd, &events[0]);
-    epoll_ctl(epFd, EPOLL_CTL_ADD, uringToFanotifyGlobal, &events[0]);
-    
-    //this ensures that i must run the fileAccessLoop first. 
-    
-    //this is the main loop of the file fetcher service, the individual file requests are fired off in this execution path
-
-    while (true) {
-        int n = epoll_wait(epFd, events, 1, -1);
-        std::cout << "unblocked" <<std::endl;
-        if (n < 0) {
-            if (errno == EINTR) continue;
-            std::perror("epoll_wait");
-            break;
-        }
-
-        
-        
-
-        for (int i = 0; i < n; ++i) {
-            if (events[i].data.fd == uringToFanotifyGlobal){
-                
-                unblockOp.response = FAN_ALLOW;
-                //have to figure out whether i can dig out the right fd, its somewhere in the contexts
-                //unblockOp.fd = meta->fd;
-                write(fanFd, &unblockOp, sizeof(unblockOp));
-
-
-                continue;
-            }
-
-            char buf[PATH_MAX];
-            ssize_t len = read(fanFd, buf, sizeof(buf));
-            if (len <= 0) {
-                if (errno == EINTR) continue;
-                std::perror("read fanotify");
-                continue;
-            }
-
-            for (fanotify_event_metadata* meta = reinterpret_cast<fanotify_event_metadata*>(buf); FAN_EVENT_OK(meta, static_cast<int>(len)); meta = FAN_EVENT_NEXT(meta, len)) {
-                std::cout << "event meta is: " << meta->mask <<std::endl;
-
-                //this is questionable, if it starts throwing version errors ill revisit
-                //if (meta->vers != FANOTIFY_METADATA_VERSION) {
-                //    std::cerr << "fanotify metadata version mismatch\n";
-                //    continue;
-                //}
-
-                if (meta->fd < 0) continue;
-
-                auto filePath = resolveFdPath(meta->fd);
-                if (filePath) {
-                    trackedFiles.insert(*filePath);
-                    
-                    //have to do this entire thing to ensure that i am getting the reference that wont die after it goes out of scope
-                    auto it = trackedFiles.find(*filePath);
-                    eventfd_t chanMsg = reinterpret_cast<eventfd_t>(std::addressof(it));
-                    eventfd_write(fanotifyToNetwork ,meta->fd);
-                    
-                    std::cout << "catch all: " << *filePath << "\n";
-                } else {
-                    // Real file pulling for pre-examined lists happens here
-                    
-                    
-                    std::cout << "OPEN: <unknown>\n";
-
-
-                }
-
-                close(meta->fd);
-            }
-        }
-    }
 
 
 
-}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -411,7 +285,10 @@ void networkEventLoop() {
 
     };
 
-    nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, [](nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data) -> int {
+    nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, [](nghttp2_session *session, 
+        uint8_t flags, int32_t stream_id, 
+        const uint8_t *data, size_t len, 
+        void *user_data) -> int {
         //could maybe manage thread contention better but it will have to work for now, lots of bugs possible if i decide to manually lock/unlock the thing
         std::lock_guard<std::mutex> guard(activeFilePullsStateLock);
         std::cout << "on_data_chunk_recv_callback: " << len << "\n";
@@ -426,7 +303,7 @@ void networkEventLoop() {
             std::cout << "server side data chunk on file pull" << std::endl;
 
             
-            //data is stupid, its basically a pointer to a byte, i need to iterate the pointer until i get to size_t len to actually read everyting, it looks horridly dangeroud
+            //data is stupid, its basically a pointer to a byte, i need to iterate the pointer until i get to size_t len to actually read everyting, it looks horridly dangerous
         
             if(it->second.fileDesc == 0) {
                 it->second.filePath;
@@ -493,7 +370,9 @@ void networkEventLoop() {
     });
 
 
-    nghttp2_session_callbacks_set_send_callback(callbacks, [](nghttp2_session *session, const uint8_t *data, size_t length, int flags, void *user_data) -> ssize_t {
+    nghttp2_session_callbacks_set_send_callback(callbacks, [](nghttp2_session *session, 
+        const uint8_t *data, size_t length, 
+        int flags, void *user_data) -> ssize_t {
     
         auto ctx = static_cast<parseCallbackCtx*>(user_data);
         //this blocks but whatever, its just headers
@@ -587,18 +466,6 @@ void networkEventLoop() {
 
 }
 
-
-auto uringCompletionHndlrNew = [](io_uring_cqe* cqe){
-    unsigned head;
-    io_uring_for_each_cqe(&globalRing, head, cqe){
-        uint8_t res = io_uring_peek_cqe(&globalRing, &cqe);
-        if(res != 0){
-            throw std::runtime_error("io_uring_peek_cqe failed with status: " + std::to_string(res));
-        }
-        fileOp* fOp = static_cast<fileOp*>(io_uring_cqe_get_data(cqe));
-
-    }
-};
 
 
 

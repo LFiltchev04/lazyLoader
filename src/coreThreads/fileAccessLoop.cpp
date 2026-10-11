@@ -119,7 +119,9 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                     pullInit->fPath = *filePath;
                     pullInit->fanPermFd = meta->fd;
                     
-                    write(*fanotifyToNetwork ,pullInit, sizeof(*pullInit));
+                    if(meta->mask == FAN_CLASS_PRE_CONTENT) {
+                        write(*fanotifyToNetwork ,pullInit, sizeof(*pullInit));
+                    }
                     
                 }
 

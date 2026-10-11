@@ -286,30 +286,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-src/addMarks.o: src/addMarks.cpp.o
-.PHONY : src/addMarks.o
-
-# target to build an object file
-src/addMarks.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/addMarks.cpp.o
-.PHONY : src/addMarks.cpp.o
-
-src/addMarks.i: src/addMarks.cpp.i
-.PHONY : src/addMarks.i
-
-# target to preprocess a source file
-src/addMarks.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/addMarks.cpp.i
-.PHONY : src/addMarks.cpp.i
-
-src/addMarks.s: src/addMarks.cpp.s
-.PHONY : src/addMarks.s
-
-# target to generate assembly for a file
-src/addMarks.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/addMarks.cpp.s
-.PHONY : src/addMarks.cpp.s
-
 src/blobState.o: src/blobState.cpp.o
 .PHONY : src/blobState.o
 
@@ -502,6 +478,30 @@ src/sparseAllocator.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/sparseAllocator.cpp.s
 .PHONY : src/sparseAllocator.cpp.s
 
+src/utils/addMarks.o: src/utils/addMarks.cpp.o
+.PHONY : src/utils/addMarks.o
+
+# target to build an object file
+src/utils/addMarks.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/addMarks.cpp.o
+.PHONY : src/utils/addMarks.cpp.o
+
+src/utils/addMarks.i: src/utils/addMarks.cpp.i
+.PHONY : src/utils/addMarks.i
+
+# target to preprocess a source file
+src/utils/addMarks.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/addMarks.cpp.i
+.PHONY : src/utils/addMarks.cpp.i
+
+src/utils/addMarks.s: src/utils/addMarks.cpp.s
+.PHONY : src/utils/addMarks.s
+
+# target to generate assembly for a file
+src/utils/addMarks.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/addMarks.cpp.s
+.PHONY : src/utils/addMarks.cpp.s
+
 src/utils/fanotifyResolve.o: src/utils/fanotifyResolve.cpp.o
 .PHONY : src/utils/fanotifyResolve.o
 
@@ -526,6 +526,30 @@ src/utils/fanotifyResolve.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/src/utils/fanotifyResolve.cpp.s
 .PHONY : src/utils/fanotifyResolve.cpp.s
 
+tests/fanotifyAccessTest.o: tests/fanotifyAccessTest.cpp.o
+.PHONY : tests/fanotifyAccessTest.o
+
+# target to build an object file
+tests/fanotifyAccessTest.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyAccessTest.cpp.o
+.PHONY : tests/fanotifyAccessTest.cpp.o
+
+tests/fanotifyAccessTest.i: tests/fanotifyAccessTest.cpp.i
+.PHONY : tests/fanotifyAccessTest.i
+
+# target to preprocess a source file
+tests/fanotifyAccessTest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyAccessTest.cpp.i
+.PHONY : tests/fanotifyAccessTest.cpp.i
+
+tests/fanotifyAccessTest.s: tests/fanotifyAccessTest.cpp.s
+.PHONY : tests/fanotifyAccessTest.s
+
+# target to generate assembly for a file
+tests/fanotifyAccessTest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyAccessTest.cpp.s
+.PHONY : tests/fanotifyAccessTest.cpp.s
+
 tests/fanotifyFdName_resolv.o: tests/fanotifyFdName_resolv.cpp.o
 .PHONY : tests/fanotifyFdName_resolv.o
 
@@ -549,30 +573,6 @@ tests/fanotifyFdName_resolv.s: tests/fanotifyFdName_resolv.cpp.s
 tests/fanotifyFdName_resolv.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyFdName_resolv.cpp.s
 .PHONY : tests/fanotifyFdName_resolv.cpp.s
-
-tests/fanotifyTest.o: tests/fanotifyTest.cpp.o
-.PHONY : tests/fanotifyTest.o
-
-# target to build an object file
-tests/fanotifyTest.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyTest.cpp.o
-.PHONY : tests/fanotifyTest.cpp.o
-
-tests/fanotifyTest.i: tests/fanotifyTest.cpp.i
-.PHONY : tests/fanotifyTest.i
-
-# target to preprocess a source file
-tests/fanotifyTest.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyTest.cpp.i
-.PHONY : tests/fanotifyTest.cpp.i
-
-tests/fanotifyTest.s: tests/fanotifyTest.cpp.s
-.PHONY : tests/fanotifyTest.s
-
-# target to generate assembly for a file
-tests/fanotifyTest.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/tests/fanotifyTest.cpp.s
-.PHONY : tests/fanotifyTest.cpp.s
 
 tests/sanity.o: tests/sanity.cpp.o
 .PHONY : tests/sanity.o
@@ -621,9 +621,6 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... src/addMarks.o"
-	@echo "... src/addMarks.i"
-	@echo "... src/addMarks.s"
 	@echo "... src/blobState.o"
 	@echo "... src/blobState.i"
 	@echo "... src/blobState.s"
@@ -648,15 +645,18 @@ help:
 	@echo "... src/sparseAllocator.o"
 	@echo "... src/sparseAllocator.i"
 	@echo "... src/sparseAllocator.s"
+	@echo "... src/utils/addMarks.o"
+	@echo "... src/utils/addMarks.i"
+	@echo "... src/utils/addMarks.s"
 	@echo "... src/utils/fanotifyResolve.o"
 	@echo "... src/utils/fanotifyResolve.i"
 	@echo "... src/utils/fanotifyResolve.s"
+	@echo "... tests/fanotifyAccessTest.o"
+	@echo "... tests/fanotifyAccessTest.i"
+	@echo "... tests/fanotifyAccessTest.s"
 	@echo "... tests/fanotifyFdName_resolv.o"
 	@echo "... tests/fanotifyFdName_resolv.i"
 	@echo "... tests/fanotifyFdName_resolv.s"
-	@echo "... tests/fanotifyTest.o"
-	@echo "... tests/fanotifyTest.i"
-	@echo "... tests/fanotifyTest.s"
 	@echo "... tests/sanity.o"
 	@echo "... tests/sanity.i"
 	@echo "... tests/sanity.s"

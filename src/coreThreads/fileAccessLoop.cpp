@@ -1,8 +1,7 @@
 #include "fileAccessLoop.hpp"
 
-void fileAccessEventLoop(blobState &blobDb, int fanotifyToNetwork, int uringToFanotify){
+void fileAccessEventLoop(blobState *blobDb, int *fanotifyToNetwork, int *uringToFanotify){
     std::unordered_set<std::string> trackedFiles;
-    fanotifyToNetwork = eventfd(50, 0);
 
     
     int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC, O_RDONLY | O_LARGEFILE);
@@ -23,7 +22,7 @@ void fileAccessEventLoop(blobState &blobDb, int fanotifyToNetwork, int uringToFa
     //main network loop fd
     epoll_event events[1];
     epoll_ctl(epFd, EPOLL_CTL_ADD, fanFd, &events[0]);
-    epoll_ctl(epFd, EPOLL_CTL_ADD, uringToFanotify, &events[0]);
+    epoll_ctl(epFd, EPOLL_CTL_ADD, *uringToFanotify, &events[0]);
     
     //this ensures that i must run the fileAccessLoop first. 
     
@@ -42,22 +41,37 @@ void fileAccessEventLoop(blobState &blobDb, int fanotifyToNetwork, int uringToFa
         
 
         for (int i = 0; i < n; ++i) {
-            if (events[i].data.fd == uringToFanotify){
+            if (events[i].data.fd == *uringToFanotify){
                 
                 uringCompletionEmit *emitData;
-                read(uringToFanotify, emitData, sizeof(*emitData));
+                read(*uringToFanotify, emitData, sizeof(*emitData));
 
                 unblockOp.response = FAN_ALLOW;
                 unblockOp.fd = emitData->accFd;
                 write(fanFd, &unblockOp, sizeof(unblockOp));
 
+                //i am annoyed by the allocations and syscalls
+                //want to push it all to the mmaped DB ideally, that ought to resolve faster than this garbage
+                std::string pthResolv = resolveFdPath(emitData->accFd).value();
+
+                
                 if(emitData->writtenBytes){
-                    fileState fStat = blobDb.getFileState(resolveFdPath(emitData->accFd).value());
-                    blobDb.
+                    if(blobDb != nullptr){
+                        fileState fStat = blobDb->getFileState(pthResolv);
+                    
+                        //preliminary assumption the file was pulled through completely, easy to change relativley
+                        blobDb->updateFileState(pthResolv, fileState::PRESENT);
+                    }else{
+                        //this is a temp workaround to get the test without a full db init
+                    }
+                    
+
+                    //thats gonna blow up innit
+                    fanotify_mark(fanFd, FAN_MARK_REMOVE, FAN_ALL_EVENTS | FAN_ALL_PERM_EVENTS, AT_FDCWD, pthResolv.c_str());
                 }
 
+                //all cases ought to get rid of this
                 delete emitData;
-                
                 continue;
             }
 
@@ -84,16 +98,19 @@ void fileAccessEventLoop(blobState &blobDb, int fanotifyToNetwork, int uringToFa
 
                 std::optional<std::string> filePath = resolveFdPath(meta->fd);
                 if (filePath) {
-                    //first have to remove the global path prefix
+                    //first have to remove the global path prefix, ignored for testing
 
                     trackedFiles.insert(*filePath);
                     
                     //have to do this entire thing to ensure that i am getting the reference that wont die after it goes out of scope
                     auto it = trackedFiles.find(*filePath);
-                    eventfd_t chanMsg = reinterpret_cast<eventfd_t>(std::addressof(it));
-                    eventfd_write(fanotifyToNetwork ,meta->fd);
+
+                    //for the network thread to clean up
+                    fanotifyNetworkInit *pullInit = new fanotifyNetworkInit;
+                    pullInit->fPath = *filePath;
+                    pullInit->fanPermFd = meta->fd;
                     
-                    std::cout << "catch all: " << *filePath << "\n";
+                    write(*fanotifyToNetwork ,pullInit, sizeof(*pullInit));
                     
                 }
 

@@ -1,6 +1,6 @@
 #include "fileAccessLoop.hpp"
 
-void fileAccessEventLoop(blobState blobDb, int fanotifyToNetwork, int uringToFanotify){
+void fileAccessEventLoop(blobState &blobDb, int fanotifyToNetwork, int uringToFanotify){
     std::unordered_set<std::string> trackedFiles;
     fanotifyToNetwork = eventfd(50, 0);
 
@@ -52,7 +52,8 @@ void fileAccessEventLoop(blobState blobDb, int fanotifyToNetwork, int uringToFan
                 write(fanFd, &unblockOp, sizeof(unblockOp));
 
                 if(emitData->writtenBytes){
-
+                    fileState fStat = blobDb.getFileState(resolveFdPath(emitData->accFd).value());
+                    blobDb.
                 }
 
                 delete emitData;

@@ -13,5 +13,7 @@
 #include "../databaseSingleton.hpp"
 #include "../utils/fanotifyResolve.hpp"
 #include "uringCompletionEmit.hpp"
+#include "../blobState.hpp"
+#include "../fileState.hpp"
 
-void fileAccessEventLoop(blobState blobDb, int fanotifyToNetwork, int uringToFanotify);
+void fileAccessEventLoop(blobState &blobDb, int fanotifyToNetwork, int uringToFanotify);

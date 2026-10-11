@@ -1,11 +1,20 @@
 #include "fileAccessLoop.hpp"
 
-void fileAccessEventLoop(blobState *blobDb, int *fanotifyToNetwork, int *uringToFanotify){
+void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify){
     std::unordered_set<std::string> trackedFiles;
 
     
     int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC, O_RDONLY | O_LARGEFILE);
 
+    if(basePath != nullptr){
+        //used primarily for unit tests, the blobDb object carries the data alone no problem
+        struct stat strStat;
+        stat(basePath->c_str(), &strStat);
+
+        if(S_ISDIR(strStat.st_mode)){
+            markTree(basePath->c_str(), fanFd);
+        }
+    }
 
     if(fanFd < 0){
         throw new std::runtime_error("fanotify_init failed");

@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 
 // Add fanotify marks to each entry in the provided root path.
-void monitorFlagTree(std::string treeRoot, int fanotifyFd) {
+void markTree(std::string treeRoot, int fanotifyFd) {
     fs::directory_iterator start{treeRoot};
     fs::directory_iterator end{};
 

@@ -1,4 +1,4 @@
 #pragma once
 #include <string>
 
-void monitorFlagTree(std::string treeRoot, int fanotifyFd);
+void markTree(std::string treeRoot, int fanotifyFd);

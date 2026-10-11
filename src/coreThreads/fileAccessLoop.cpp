@@ -1,6 +1,6 @@
 #include "fileAccessLoop.hpp"
 
-void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, int uringToFanotifyGlobal){
+void fileAccessEventLoop(blobState blobDb, int fanotifyToNetwork, int uringToFanotify){
     std::unordered_set<std::string> trackedFiles;
     fanotifyToNetwork = eventfd(50, 0);
 
@@ -23,7 +23,7 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, 
     //main network loop fd
     epoll_event events[1];
     epoll_ctl(epFd, EPOLL_CTL_ADD, fanFd, &events[0]);
-    epoll_ctl(epFd, EPOLL_CTL_ADD, uringToFanotifyGlobal, &events[0]);
+    epoll_ctl(epFd, EPOLL_CTL_ADD, uringToFanotify, &events[0]);
     
     //this ensures that i must run the fileAccessLoop first. 
     
@@ -42,14 +42,21 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, 
         
 
         for (int i = 0; i < n; ++i) {
-            if (events[i].data.fd == uringToFanotifyGlobal){
+            if (events[i].data.fd == uringToFanotify){
                 
+                uringCompletionEmit *emitData;
+                read(uringToFanotify, emitData, sizeof(*emitData));
+
                 unblockOp.response = FAN_ALLOW;
-                //have to figure out whether i can dig out the right fd, its somewhere in the contexts
-                //unblockOp.fd = meta->fd;
+                unblockOp.fd = emitData->accFd;
                 write(fanFd, &unblockOp, sizeof(unblockOp));
 
+                if(emitData->writtenBytes){
 
+                }
+
+                delete emitData;
+                
                 continue;
             }
 
@@ -76,6 +83,8 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, 
 
                 std::optional<std::string> filePath = resolveFdPath(meta->fd);
                 if (filePath) {
+                    //first have to remove the global path prefix
+
                     trackedFiles.insert(*filePath);
                     
                     //have to do this entire thing to ensure that i am getting the reference that wont die after it goes out of scope
@@ -84,20 +93,10 @@ void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork, 
                     eventfd_write(fanotifyToNetwork ,meta->fd);
                     
                     std::cout << "catch all: " << *filePath << "\n";
-                } else {
-                    // Real file pulling for pre-examined lists happens here
                     
-                    
-                    std::cout << "OPEN: <unknown>\n";
-
-
                 }
 
-                close(meta->fd);
             }
         }
     }
-
-
-
 }

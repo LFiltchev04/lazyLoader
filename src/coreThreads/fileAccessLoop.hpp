@@ -12,5 +12,6 @@
 
 #include "../databaseSingleton.hpp"
 #include "../utils/fanotifyResolve.hpp"
+#include "uringCompletionEmit.hpp"
 
-void fileAccessEventLoop(databaseSingleton* dbSingleton, int fanotifyToNetwork);
+void fileAccessEventLoop(blobState blobDb, int fanotifyToNetwork, int uringToFanotify);

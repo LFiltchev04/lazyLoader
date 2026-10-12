@@ -4,6 +4,14 @@
 CMakeFiles/LazyFetcher.dir/main.cpp.o: main.cpp \
   src/blobState.hpp \
   src/containerClass.hpp \
+  src/blobState.hpp \
+  src/databaseSingleton.hpp \
+  src/utils/addMarks.hpp \
+  src/utils/fanotifyResolve.hpp \
+  src/coreThreads/containerPullInit.hpp \
+  src/coreThreads/fanotifyNetworkInit.hpp \
+  src/coreThreads/fileAccessLoop.hpp \
+  src/coreThreads/uringCompletionEmit.hpp \
   src/databaseSingleton.hpp \
   src/httplib.h \
   src/json.hpp \
@@ -846,15 +854,25 @@ CMakeFiles/LazyFetcher.dir/main.cpp.o: main.cpp \
 
 /usr/include/c++/12/tr1/legendre_function.tcc:
 
-/usr/include/x86_64-linux-gnu/bits/wchar.h:
+/usr/include/linux/stat.h:
 
-/usr/include/c++/12/cstdlib:
+/usr/include/c++/12/tr1/gamma.tcc:
 
-/usr/include/c++/12/bits/shared_ptr_atomic.h:
+/usr/include/c++/12/tr1/exp_integral.tcc:
+
+/usr/include/c++/12/tr1/ell_integral.tcc:
+
+/usr/include/c++/12/tr1/beta_function.tcc:
 
 /usr/include/c++/12/tr1/riemann_zeta.tcc:
 
 /usr/include/c++/12/bits/basic_ios.tcc:
+
+/usr/include/c++/12/bits/regex_automaton.tcc:
+
+/usr/include/c++/12/bits/regex.h:
+
+/usr/include/c++/12/bits/refwrap.h:
 
 /usr/include/c++/12/bits/regex_executor.h:
 
@@ -864,11 +882,7 @@ CMakeFiles/LazyFetcher.dir/main.cpp.o: main.cpp \
 
 /usr/include/c++/12/bits/stl_function.h:
 
-/usr/include/c++/12/bits/regex_automaton.tcc:
-
-/usr/include/c++/12/bits/regex.h:
-
-/usr/include/c++/12/bits/refwrap.h:
+src/coreThreads/fileAccessLoop.hpp:
 
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
@@ -888,9 +902,9 @@ CMakeFiles/LazyFetcher.dir/main.cpp.o: main.cpp \
 
 /usr/include/c++/12/bits/random.h:
 
-main.cpp:
-
 /usr/include/c++/12/bits/ostream_insert.h:
+
+main.cpp:
 
 /usr/include/c++/12/bits/quoted_string.h:
 
@@ -913,12 +927,6 @@ main.cpp:
 /usr/include/c++/12/bits/indirect_array.h:
 
 /usr/include/c++/12/bits/semaphore_base.h:
-
-/usr/include/c++/12/bits/regex_error.h:
-
-/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
-
-/usr/include/c++/12/bits/fs_fwd.h:
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
 
@@ -978,13 +986,11 @@ src/blobState.hpp:
 
 /usr/include/c++/12/ext/concurrence.h:
 
-/usr/include/libintl.h:
-
-/usr/include/c++/12/bits/sstream.tcc:
-
-/usr/include/c++/12/coroutine:
-
 /usr/include/c++/12/bits/hash_bytes.h:
+
+/usr/include/c++/12/tr1/bessel_function.tcc:
+
+/usr/include/c++/12/cwchar:
 
 /usr/include/c++/12/bits/stl_construct.h:
 
@@ -996,19 +1002,33 @@ src/blobState.hpp:
 
 /usr/include/c++/12/bits/mask_array.h:
 
-/usr/include/c++/12/backward/auto_ptr.h:
+/usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
 
-/usr/include/x86_64-linux-gnu/bits/timex.h:
+/usr/include/c++/12/bits/fs_fwd.h:
 
-/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+/usr/include/c++/12/bits/fs_dir.h:
 
-/usr/include/c++/12/iostream:
+/usr/include/strings.h:
 
-/usr/include/c++/12/bits/stl_algo.h:
+/usr/include/signal.h:
 
-/usr/include/c++/12/span:
+/usr/include/c++/12/bits/forward_list.tcc:
 
-/usr/include/assert.h:
+/usr/include/c++/12/bits/shared_ptr.h:
+
+/usr/include/c++/12/initializer_list:
+
+/usr/include/x86_64-linux-gnu/bits/endianness.h:
+
+/usr/include/c++/12/bits/forward_list.h:
+
+/usr/include/c++/12/bits/locale_classes.h:
+
+/usr/include/c++/12/bits/exception_defines.h:
+
+/usr/include/c++/12/bits/regex_error.h:
+
+src/coreThreads/fanotifyNetworkInit.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/fcntl.h:
 
@@ -1018,19 +1038,13 @@ src/blobState.hpp:
 
 /usr/include/asm-generic/sockios.h:
 
-/usr/include/c++/12/tr1/beta_function.tcc:
-
-/usr/include/c++/12/bits/locale_classes.h:
-
-/usr/include/c++/12/bits/exception_defines.h:
-
 /usr/include/c++/12/bits/hashtable_policy.h:
 
 /usr/include/c++/12/numbers:
 
 /usr/include/asm-generic/socket.h:
 
-/usr/include/c++/12/bits/slice_array.h:
+src/utils/addMarks.hpp:
 
 /usr/include/linux/btrfs_tree.h:
 
@@ -1038,9 +1052,53 @@ src/blobState.hpp:
 
 /usr/include/c++/12/bits/stl_vector.h:
 
-/usr/include/c++/12/atomic:
+/usr/include/asm-generic/ioctl.h:
 
-/usr/include/arpa/nameser.h:
+/usr/include/c++/12/forward_list:
+
+/usr/include/c++/12/bits/streambuf_iterator.h:
+
+/usr/include/c++/12/numeric:
+
+src/httplib.h:
+
+/usr/include/c++/12/bits/stl_relops.h:
+
+/usr/include/c++/12/cstdint:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
+
+/usr/include/c++/12/ext/type_traits.h:
+
+/usr/include/c++/12/deque:
+
+/usr/include/asm-generic/types.h:
+
+/usr/include/asm-generic/bitsperlong.h:
+
+/usr/include/locale.h:
+
+/usr/include/c++/12/bits/fs_path.h:
+
+/usr/include/c++/12/bits/exception_ptr.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigthread.h:
+
+/usr/include/c++/12/bits/unordered_map.h:
+
+src/json.hpp:
+
+/usr/include/c++/12/bits/atomic_wait.h:
+
+/usr/include/limits.h:
+
+/usr/include/c++/12/bits/alloc_traits.h:
+
+/usr/include/c++/12/span:
+
+/usr/include/assert.h:
 
 /usr/include/stdint.h:
 
@@ -1052,65 +1110,11 @@ src/blobState.hpp:
 
 /usr/include/c++/12/ranges:
 
-/usr/include/c++/12/bits/atomic_wait.h:
+src/coreThreads/uringCompletionEmit.hpp:
 
-/usr/include/x86_64-linux-gnu/bits/sigthread.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_statx.h:
 
-/usr/include/c++/12/bits/unordered_map.h:
-
-src/json.hpp:
-
-/usr/include/limits.h:
-
-/usr/include/c++/12/bits/alloc_traits.h:
-
-/usr/include/locale.h:
-
-/usr/include/c++/12/bits/fs_path.h:
-
-/usr/include/c++/12/bits/char_traits.h:
-
-/usr/include/asm-generic/param.h:
-
-src/httplib.h:
-
-/usr/include/c++/12/ctime:
-
-/usr/include/c++/12/any:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
-
-/usr/include/c++/12/bits/istream.tcc:
-
-/usr/include/asm-generic/errno.h:
-
-/usr/include/c++/12/array:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
-
-/usr/include/c++/12/bits/regex_constants.h:
-
-/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
-
-/usr/include/c++/12/bit:
-
-/usr/include/c++/12/bits/shared_ptr.h:
-
-/usr/include/strings.h:
-
-/usr/include/signal.h:
-
-/usr/include/c++/12/bits/forward_list.tcc:
-
-/usr/include/c++/12/initializer_list:
-
-/usr/include/c++/12/bits/specfun.h:
-
-/usr/include/c++/12/bits/std_mutex.h:
-
-/usr/include/alloca.h:
-
-/usr/include/c++/12/bits/shared_ptr_base.h:
+/usr/include/c++/12/bits/stringfwd.h:
 
 /usr/include/c++/12/tuple:
 
@@ -1134,21 +1138,45 @@ src/httplib.h:
 
 /usr/include/c++/12/bits/basic_string.tcc:
 
-/usr/include/c++/12/bits/stl_relops.h:
+/usr/include/c++/12/bits/char_traits.h:
 
-/usr/include/c++/12/cstdint:
+/usr/include/asm-generic/param.h:
 
-/usr/include/asm-generic/errno-base.h:
+src/utils/fanotifyResolve.hpp:
 
-/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
+/usr/include/c++/12/climits:
 
-/usr/include/c++/12/ext/type_traits.h:
+/usr/include/alloca.h:
 
-/usr/include/c++/12/deque:
+/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
 
-/usr/include/asm-generic/bitsperlong.h:
+/usr/include/c++/12/bits/istream.tcc:
 
-/usr/include/asm-generic/types.h:
+/usr/include/asm-generic/errno.h:
+
+/usr/include/c++/12/ctime:
+
+/usr/include/c++/12/any:
+
+/usr/include/c++/12/array:
+
+/usr/include/arpa/nameser.h:
+
+/usr/include/c++/12/atomic:
+
+/usr/include/c++/12/bits/stl_algo.h:
+
+/usr/include/c++/12/backward/auto_ptr.h:
+
+/usr/include/x86_64-linux-gnu/bits/timex.h:
+
+/usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
+
+/usr/include/c++/12/iostream:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
+
+/usr/include/c++/12/bits/regex_constants.h:
 
 /usr/include/c++/12/bits/regex_compiler.tcc:
 
@@ -1212,10 +1240,6 @@ src/httplib.h:
 
 /usr/include/c++/12/string_view:
 
-/usr/include/x86_64-linux-gnu/bits/endianness.h:
-
-/usr/include/c++/12/bits/forward_list.h:
-
 src/containerClass.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/socket_type.h:
@@ -1244,6 +1268,12 @@ src/containerClass.hpp:
 
 /usr/include/c++/12/backward/binders.h:
 
+/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
+
+/usr/include/c++/12/bit:
+
+src/coreThreads/containerPullInit.hpp:
+
 /usr/include/linux/stddef.h:
 
 /usr/include/c++/12/bits/cxxabi_init_exception.h:
@@ -1252,13 +1282,25 @@ src/containerClass.hpp:
 
 /usr/include/c++/12/bits/enable_special_members.h:
 
-/usr/include/asm-generic/ioctl.h:
+/usr/include/c++/12/bits/shared_ptr_atomic.h:
 
-/usr/include/c++/12/numeric:
+/usr/include/c++/12/bits/shared_ptr_base.h:
 
-/usr/include/c++/12/bits/exception_ptr.h:
+/usr/include/c++/12/bits/slice_array.h:
 
-/usr/include/c++/12/bits/fs_dir.h:
+/usr/include/c++/12/bits/specfun.h:
+
+/usr/include/c++/12/bits/std_mutex.h:
+
+/usr/include/libintl.h:
+
+/usr/include/c++/12/coroutine:
+
+/usr/include/c++/12/bits/sstream.tcc:
+
+/usr/include/x86_64-linux-gnu/bits/wchar.h:
+
+/usr/include/c++/12/cstdlib:
 
 /usr/include/x86_64-linux-gnu/bits/sockaddr.h:
 
@@ -1316,10 +1358,6 @@ src/containerClass.hpp:
 
 /usr/include/c++/12/bits/stl_numeric.h:
 
-/usr/include/c++/12/bits/streambuf_iterator.h:
-
-/usr/include/c++/12/forward_list:
-
 /usr/include/c++/12/bits/stl_raw_storage_iter.h:
 
 /usr/include/c++/12/bits/functexcept.h:
@@ -1358,15 +1396,11 @@ src/containerClass.hpp:
 
 /usr/include/c++/12/bits/valarray_array.tcc:
 
-/usr/include/x86_64-linux-gnu/bits/types/struct_statx.h:
-
-/usr/include/c++/12/bits/stringfwd.h:
-
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 
-/usr/include/c++/12/bits/memoryfwd.h:
-
 /usr/include/c++/12/concepts:
+
+/usr/include/c++/12/bits/memoryfwd.h:
 
 /usr/include/c++/12/bits/stl_pair.h:
 
@@ -1375,6 +1409,10 @@ src/containerClass.hpp:
 /usr/include/c++/12/iterator:
 
 /usr/include/c++/12/bits/unique_ptr.h:
+
+/usr/include/c++/12/tr1/hypergeometric.tcc:
+
+/usr/include/c++/12/cwctype:
 
 /usr/include/c++/12/bits/invoke.h:
 
@@ -1390,10 +1428,6 @@ src/containerClass.hpp:
 
 /usr/include/c++/12/functional:
 
-/usr/include/linux/stat.h:
-
-/usr/include/c++/12/tr1/gamma.tcc:
-
 /usr/include/x86_64-linux-gnu/bits/statx-generic.h:
 
 /usr/include/c++/12/bitset:
@@ -1405,8 +1439,6 @@ src/containerClass.hpp:
 /usr/include/x86_64-linux-gnu/sys/poll.h:
 
 /usr/include/c++/12/cinttypes:
-
-/usr/include/c++/12/climits:
 
 /usr/include/c++/12/bits/chrono.h:
 
@@ -1505,15 +1537,3 @@ src/containerClass.hpp:
 /usr/include/c++/12/bits/regex_compiler.h:
 
 /usr/include/c++/12/system_error:
-
-/usr/include/c++/12/cwchar:
-
-/usr/include/c++/12/tr1/bessel_function.tcc:
-
-/usr/include/c++/12/tr1/ell_integral.tcc:
-
-/usr/include/c++/12/tr1/exp_integral.tcc:
-
-/usr/include/c++/12/cwctype:
-
-/usr/include/c++/12/tr1/hypergeometric.tcc:

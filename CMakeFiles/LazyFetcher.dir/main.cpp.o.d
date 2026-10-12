@@ -392,4 +392,12 @@ CMakeFiles/LazyFetcher.dir/main.cpp.o: /home/llf/faNotify/main.cpp \
  /usr/include/c++/12/span /usr/include/c++/12/any \
  /home/llf/faNotify/src/databaseSingleton.hpp \
  /usr/include/c++/12/coroutine /usr/include/c++/12/cinttypes \
- /usr/include/inttypes.h
+ /usr/include/inttypes.h \
+ /home/llf/faNotify/src/coreThreads/containerPullInit.hpp \
+ /home/llf/faNotify/src/coreThreads/../databaseSingleton.hpp \
+ /home/llf/faNotify/src/coreThreads/fileAccessLoop.hpp \
+ /home/llf/faNotify/src/coreThreads/../utils/fanotifyResolve.hpp \
+ /home/llf/faNotify/src/coreThreads/uringCompletionEmit.hpp \
+ /home/llf/faNotify/src/coreThreads/../blobState.hpp \
+ /home/llf/faNotify/src/coreThreads/fanotifyNetworkInit.hpp \
+ /home/llf/faNotify/src/coreThreads/../utils/addMarks.hpp

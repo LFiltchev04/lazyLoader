@@ -14,16 +14,6 @@
 #include "../smallfilesBuffer.hpp"
 #include "../utils/streamDecodeWrite.hpp"
 
-struct fileOp {
-    std::vector<slab*> frameBuffer;
-    //
-    std::string filePath;
-    uint32_t filePosPointer;
-    int fanotifyFd;
-    int fileDesc;
-    int openOps = 0;
-};
-
 
 
 
@@ -54,37 +44,7 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
     nghttp2_session_client_new(&session, callbacks, &globalCBctx);
     
 
-    nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, [](nghttp2_session *session, const nghttp2_frame *frame, void *user_data) -> int {
-        std::cout << "on_frame_recv_callback: " << frame->hd.type << "\n";
-
-        //ugly cast but eh
-        std::unordered_map<int32_t, fileOp>* activePulls = static_cast<parseCallbackCtx*>(user_data)->activeFilePulls;
-
-        if(frame->headers.cat == NGHTTP2_HCAT_RESPONSE){
-            //this is where the 200 OK ought to result in a state machine reservation for an incoming download request
-            std::cout << "server side 200 on file pull" << std::endl;
-
-            if(activePulls->find(frame->hd.stream_id) == activePulls->end()){
-                frame->hd.stream_id;
-                activePulls->emplace(frame->hd.stream_id, fileOp{{},0u, 0});
-            }
-            
-        }
-
-        if(frame->headers.cat == NGHTTP2_FLAG_END_STREAM){
-            //dont know what to do with this
-            std::cout << "server side end of stream on file pull" << std::endl;
-            //fileOp *fo = &activePulls->find(frame->hd.stream_id)->second;
-            
-            //if(fo->fileDesc != 0){
-            //    close(fo->fileDesc);
-            //}
-            
-            //activePulls->erase(frame->hd.stream_id);
-        }
-        
-        return 0;
-    });
+    nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, );
 
 
     //dont know what to use this for, might have to start thinking about it when i decide to do the server

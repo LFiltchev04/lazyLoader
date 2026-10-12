@@ -24,8 +24,6 @@ struct fileOp {
     int openOps = 0;
 };
 
-#define MAKE_NV(NAME, VALUE) \
-    { (uint8_t *)(NAME), (uint8_t *)(VALUE), sizeof(NAME) - 1, sizeof(VALUE) - 1, NGHTTP2_NV_FLAG_NONE }
 
 
 
@@ -96,21 +94,13 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
 
 
     //dont know what to use this for, might have to start thinking about it when i decide to do the server
-    nghttp2_session_callbacks_set_on_header_callback(callbacks, [](nghttp2_session *session, const nghttp2_frame *frame, const uint8_t *name, size_t namelen, const uint8_t *value, size_t valuelen, uint8_t flags, void *user_data) -> int {
+    
+    auto reworkedWriter = [](nghttp2_session *session, 
+        uint8_t flags, int32_t stream_id, 
+        const uint8_t *data, size_t len, void *user_data) -> int {
 
-        std::string_view name_view(reinterpret_cast<const char*>(name), namelen);
-        std::string_view value_view(reinterpret_cast<const char*>(value), valuelen);
 
 
-        if(name_view == ":status" and value_view == "200"){
-            return 0;
-        }
-
-        return 0;
-
-    });
-
-    auto reworkedWriter = [](nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data) -> int {
         auto ctx = static_cast<parseCallbackCtx*>(user_data);
         
         auto fOp = &ctx->activeFilePulls->find(stream_id)->second;
@@ -146,7 +136,9 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
                 
             }else{
                 int divCount = len / 16392;
+                // this is complete garbage, one large file can block out everything without even using it 
                 for(int i = 0; i < divCount; i++){
+
                     slab* slb = ctx->bPool->getSlab();
                     memcpy(slb->data + slb->written, data + i * 16392, 16392);
                     slb->written += 16392;
@@ -226,7 +218,6 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
                 // should unpack the layer from relative path but will work for now, maybe server side
                 it->second.fileDesc = open(it->second.filePath.c_str(), O_WRONLY, 0644);
                 if (it->second.fileDesc < 0) {
-                    std::perror("open");
                     return -1;
                 }
             }

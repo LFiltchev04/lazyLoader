@@ -1,11 +1,18 @@
 #include <nghttp2/nghttp2.h>
 #include <liburing.h>
-#include "../smallfilesBuffer.hpp"
 #include <iostream>
 #include <unordered_map>
 #include <fcntl.h>
+#include <vector>
+#include <cstring>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/epoll.h>
 
 
+#include "../smallfilesBuffer.hpp"
+#include "../utils/streamDecodeWrite.hpp"
 
 struct fileOp {
     std::vector<slab*> frameBuffer;
@@ -16,6 +23,9 @@ struct fileOp {
     int fileDesc;
     int openOps = 0;
 };
+
+#define MAKE_NV(NAME, VALUE) \
+    { (uint8_t *)(NAME), (uint8_t *)(VALUE), sizeof(NAME) - 1, sizeof(VALUE) - 1, NGHTTP2_NV_FLAG_NONE }
 
 
 
@@ -197,7 +207,6 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
         const uint8_t *data, size_t len, 
         void *user_data) -> int {
         //could maybe manage thread contention better but it will have to work for now, lots of bugs possible if i decide to manually lock/unlock the thing
-        std::lock_guard<std::mutex> guard(activeFilePullsStateLock);
         std::cout << "on_data_chunk_recv_callback: " << len << "\n";
         auto& activeFilePulls = *static_cast<parseCallbackCtx*>(user_data)->activeFilePulls;
         auto& ring = *static_cast<parseCallbackCtx*>(user_data)->ring;

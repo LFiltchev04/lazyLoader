@@ -1,0 +1,374 @@
+#include <nghttp2/nghttp2.h>
+#include <liburing.h>
+#include "../smallfilesBuffer.hpp"
+#include <iostream>
+#include <unordered_map>
+#include <fcntl.h>
+
+
+
+struct fileOp {
+    std::vector<slab*> frameBuffer;
+    //
+    std::string filePath;
+    uint32_t filePosPointer;
+    int fanotifyFd;
+    int fileDesc;
+    int openOps = 0;
+};
+
+
+
+void networkEventLoop(io_uring* ring, int *eventChanFd) {
+   //gotta wipe theese
+    int clientFd = -1;
+
+    
+    //figure out how to use IORING_SETUP_SQPOLL
+    struct io_uring ring;
+    if(io_uring_queue_init(8192, ring, 0) < 0){
+        std::cout << "Liburing ring init failed" << std::endl;
+        return;
+    }
+
+    bufferPool* bPool = new bufferPool(100, 16);
+
+    //this is the hashmap for disk uploads
+    std::unordered_map<int32_t, fileOp> activeFilePulls;
+
+    struct parseCallbackCtx{
+        bufferPool* bPool;
+        std::unordered_map<int32_t, fileOp> *activeFilePulls;
+        struct io_uring *ring;
+        int eventChanFd;
+        int *tcpClientFd;
+    }
+    globalCBctx = {bPool, &activeFilePulls, ring, *eventChanFd, &clientFd};
+   
+    
+    nghttp2_session_callbacks* callbacks;
+    nghttp2_session_callbacks_new(&callbacks);
+    nghttp2_session* session;
+    nghttp2_session_client_new(&session, callbacks, &globalCBctx);
+    
+
+    nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, [](nghttp2_session *session, const nghttp2_frame *frame, void *user_data) -> int {
+        std::cout << "on_frame_recv_callback: " << frame->hd.type << "\n";
+
+        //ugly cast but eh
+        std::unordered_map<int32_t, fileOp>* activePulls = static_cast<parseCallbackCtx*>(user_data)->activeFilePulls;
+
+        if(frame->headers.cat == NGHTTP2_HCAT_RESPONSE){
+            //this is where the 200 OK ought to result in a state machine reservation for an incoming download request
+            std::cout << "server side 200 on file pull" << std::endl;
+
+            if(activePulls->find(frame->hd.stream_id) == activePulls->end()){
+                frame->hd.stream_id;
+                activePulls->emplace(frame->hd.stream_id, fileOp{{},0u, 0});
+            }
+            
+        }
+
+        if(frame->headers.cat == NGHTTP2_FLAG_END_STREAM){
+            //dont know what to do with this
+            std::cout << "server side end of stream on file pull" << std::endl;
+            //fileOp *fo = &activePulls->find(frame->hd.stream_id)->second;
+            
+            //if(fo->fileDesc != 0){
+            //    close(fo->fileDesc);
+            //}
+            
+            //activePulls->erase(frame->hd.stream_id);
+        }
+        
+        return 0;
+    });
+
+
+    //dont know what to use this for, might have to start thinking about it when i decide to do the server
+    nghttp2_session_callbacks_set_on_header_callback(callbacks, [](nghttp2_session *session, const nghttp2_frame *frame, const uint8_t *name, size_t namelen, const uint8_t *value, size_t valuelen, uint8_t flags, void *user_data) -> int {
+
+        std::string_view name_view(reinterpret_cast<const char*>(name), namelen);
+        std::string_view value_view(reinterpret_cast<const char*>(value), valuelen);
+
+
+        if(name_view == ":status" and value_view == "200"){
+            return 0;
+        }
+
+        return 0;
+
+    });
+
+    auto reworkedWriter = [](nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data) -> int {
+        auto ctx = static_cast<parseCallbackCtx*>(user_data);
+        
+        auto fOp = &ctx->activeFilePulls->find(stream_id)->second;
+
+        if(fOp->fileDesc == -1){
+            fOp->fileDesc = open(fOp->filePath.c_str(), O_WRONLY, 0644);
+        }
+
+        struct stat fileStat;
+        fstat(fOp->fileDesc, &fileStat);
+        // for now 4 separate SQEs are the lower bound for a small buf pool
+        if(fileStat.st_size < 16392*8){
+            //append-slab for a small file, 16kb buffer a piece
+            
+            //first operation init
+            if(fOp->openOps == -1){
+                fOp->openOps = fileStat.st_size / 16392;
+                fOp->openOps += fileStat.st_size % 16392;
+            }
+
+            if(len<=16392){
+                if(fOp->frameBuffer.empty()){
+                    slab* slb = ctx->bPool->getSlab();
+                    fOp->frameBuffer.push_back(slb);
+                }
+                
+                slab* slb = fOp->frameBuffer.back();
+
+                memcpy(slb->data + slb->written, data, len);
+                slb->written += len;
+
+                fOp->frameBuffer.push_back(slb);
+                
+            }else{
+                int divCount = len / 16392;
+                for(int i = 0; i < divCount; i++){
+                    slab* slb = ctx->bPool->getSlab();
+                    memcpy(slb->data + slb->written, data + i * 16392, 16392);
+                    slb->written += 16392;
+                    fOp->frameBuffer.push_back(slb);
+                }
+
+                if(len - divCount * 16392 > 0){
+                    slab* slb = ctx->bPool->getSlab();
+                    memcpy(slb->data + slb->written, data + divCount * 16392, len - divCount * 16392);
+                    slb->written += len - divCount * 16392;
+                    fOp->frameBuffer.push_back(slb);
+                }
+            }
+
+
+
+        }
+        
+        //bigger buffer range if needed to add later
+
+
+
+        iovec iov[fOp->frameBuffer.size()];
+        for(auto it : fOp->frameBuffer){
+            if(it->written == 0){ continue; }
+            if(it->written < sizeof(it->data)){ throw std::runtime_error("Slab was nullptr in chunk_recv"); }
+
+            //this is the full buffer path
+            if(it->written == sizeof(it->data)){
+
+                pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
+                
+                io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
+                io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
+                io_uring_sqe_set_data(sqe, &fOp);
+            
+                io_uring_submit(ctx->ring);
+            }
+
+            //this is the equal to fatruncate record for files under the buffer size
+            //one open op set statically means its under buffer size anyhow
+            if((it->written < sizeof(it->data)) and (fOp->openOps == 1)){
+                pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
+                
+                io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
+                io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
+                io_uring_sqe_set_data(sqe, &fOp);
+                
+                io_uring_submit(ctx->ring);
+            }
+        }
+
+
+    };
+
+    nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, [](nghttp2_session *session, 
+        uint8_t flags, int32_t stream_id, 
+        const uint8_t *data, size_t len, 
+        void *user_data) -> int {
+        //could maybe manage thread contention better but it will have to work for now, lots of bugs possible if i decide to manually lock/unlock the thing
+        std::lock_guard<std::mutex> guard(activeFilePullsStateLock);
+        std::cout << "on_data_chunk_recv_callback: " << len << "\n";
+        auto& activeFilePulls = *static_cast<parseCallbackCtx*>(user_data)->activeFilePulls;
+        auto& ring = *static_cast<parseCallbackCtx*>(user_data)->ring;
+        auto& eventChanFd = static_cast<parseCallbackCtx*>(user_data)->eventChanFd;
+        
+        
+        auto it = activeFilePulls.find(stream_id);
+        if(it != activeFilePulls.end()){
+
+            std::cout << "server side data chunk on file pull" << std::endl;
+
+            
+            //data is stupid, its basically a pointer to a byte, i need to iterate the pointer until i get to size_t len to actually read everyting, it looks horridly dangerous
+        
+            if(it->second.fileDesc == 0) {
+                it->second.filePath;
+                // should unpack the layer from relative path but will work for now, maybe server side
+                it->second.fileDesc = open(it->second.filePath.c_str(), O_WRONLY, 0644);
+                if (it->second.fileDesc < 0) {
+                    std::perror("open");
+                    return -1;
+                }
+            }
+        
+            for(size_t x = 0; x < len; x++){
+                auto sqe = io_uring_get_sqe(&ring);
+                io_uring_sqe_set_data(sqe, &it->second);
+                
+                //part of a potential IORING_SETUP_SQPOLL implementation 
+                //if(*(&ring)->sq.kflags & IORING_SQ_NEED_WAKEUP){
+                //    io_uring_sqe_set_flags(sqe, IORING_ENTER_SQ_WAKEUP);
+                //}
+
+                //theese can be submitted 
+                io_uring_prep_write(sqe, it->second.fileDesc, &data[x], len, it->second.filePosPointer);
+                it->second.filePosPointer += len;
+                it->second.openOps++;
+                
+                io_uring_submit(&ring);
+
+                io_uring_cqe* cqe;
+
+
+                //sometimes theese get inlined and complete fast so i need to check whether that was the case 
+                //to quikly kill the fanotify watcher and hashmap context
+                while(io_uring_peek_cqe(&ring, &cqe) == 0){
+                    cqe->res;
+                    std::cout << "cqe res: " << cqe->res << std::endl;
+                    auto state = reinterpret_cast<fileOp*>(cqe->user_data);
+                    
+                    
+                    state->filePath;
+                    //potential place to cleanup or log the file operation state
+                    io_uring_cqe_seen(&ring, cqe);
+
+                    it->second.openOps--;
+
+                    if(it->second.openOps == 0){
+                        close(it->second.fileDesc);
+
+                        activeFilePulls.erase(it);
+                    }
+                }
+
+                uint64_t minValue;
+                
+
+                //this is blocking, ideally avoid it because all request processing will die until disk commit
+                //write(it->second.fileDesc, &data[x], 1);
+            }
+            
+
+        }
+        
+        //cleanup logic to dump out the other state on fail of server pull for later
+        return 0;
+    });
+
+
+    nghttp2_session_callbacks_set_send_callback(callbacks, [](nghttp2_session *session, 
+        const uint8_t *data, size_t length, 
+        int flags, void *user_data) -> ssize_t {
+    
+        auto ctx = static_cast<parseCallbackCtx*>(user_data);
+        //this blocks but whatever, its just headers
+        return write(*(ctx->tcpClientFd), data, length);
+    });
+
+
+    struct sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(8080);
+    inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+
+    clientFd = socket(AF_INET, SOCK_STREAM, 0);
+    
+
+    connect(clientFd, (struct sockaddr*)&addr, sizeof(addr));
+
+    nghttp2_nv hdrs[] = {
+        MAKE_NV(":method", "GET"),
+        MAKE_NV(":path", "/index.html"),
+        MAKE_NV(":scheme", "http"),
+        MAKE_NV("user-agent", "nghttp2/1.0"),
+        MAKE_NV("hash","fuck this"),
+        MAKE_NV("filePath", "pth")
+    };
+
+
+
+    int epollfd = epoll_create1(0);
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, clientFd, nullptr);
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, nullptr);
+    epoll_event event;
+
+    //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff 
+    char buffer[65536];
+
+    while(true){
+        int n = epoll_wait(epollfd, &event, 1, -1);
+        if(n < 0){
+            std::cout << "epoll_wait failed" << std::endl;
+            return;
+        }
+
+
+
+
+        //alternate control path for doing initial registration of file pulls with path
+        if(event.data.fd == fanotifyToNetwork){
+            eventfd_t chanMsg;
+            eventfd_read(fanotifyToNetwork, &chanMsg);
+            auto it = reinterpret_cast<int*>(chanMsg);
+            auto filePathOpt = resolveFdPath(*it);
+
+            if(filePathOpt){
+                std::cout << "file path: " << *filePathOpt << std::endl;
+            } else {
+                std::cout << "file path could not be resolved for fd: " << *it << std::endl;
+                throw std::runtime_error("file path could not be resolved for fd: " + std::to_string(*it));
+            }
+
+            int32_t streamId = nghttp2_submit_request(session, nullptr, hdrs, sizeof(hdrs), nullptr, nullptr);
+            
+            /*
+            fileOp newOp(
+                filePathOpt.value(), //file path
+                0, //file pos pointer
+                *it, //fanotify file descriptor
+                0, // liburing file descriptor for populating content
+                0 //ongoing liburing writes semaphore
+            );
+            */
+
+            //activeFilePulls.insert({streamId, newOp});
+        }
+
+
+
+        for(int x = 0; x < 4; x++){
+            ssize_t readNum = read(clientFd, buffer, sizeof(buffer));
+            if(readNum <= 0){
+                break;
+            }
+
+            //will rely on the internal buffers to memcpy, slabs will be pushed to callback management so i can accuratley track offsets
+            std::cout << "read " << readNum << " bytes\n";
+            nghttp2_session_mem_recv(session, reinterpret_cast<const uint8_t*>(buffer), readNum);
+        
+        }
+        
+    }
+
+}

@@ -9,6 +9,8 @@
 #include <iostream>
 
 #include "src/containerClass.hpp"
+#include "coreThreads/containerPullInit.hpp"
+#include "coreThreads/fileAccessLoop.hpp"
 int main(int argc, char* argv[]) {
 
     

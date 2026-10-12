@@ -6,7 +6,7 @@
     { (uint8_t *)(NAME), (uint8_t *)(VALUE), sizeof(NAME) - 1, sizeof(VALUE) - 1, NGHTTP2_NV_FLAG_NONE }
 
 
-void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd){
+void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd, void* userDataCtx){
 
     nghttp2_nv nvArr[] = {
         MAKE_NV(":method", "GET"),
@@ -17,7 +17,7 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd)
     nghttp2_priority_spec priSpec;
     nghttp2_priority_spec_init(&priSpec, 0, 256, 0);
 
-    ssize_t writeHere = nghttp2_submit_request(session, &priSpec, nvArr, 2, nullptr, nullptr);
+    ssize_t writeHere = nghttp2_submit_request(session, &priSpec, nvArr, 2, nullptr, userDataCtx);
 
     const uint8_t *data = nullptr;
 

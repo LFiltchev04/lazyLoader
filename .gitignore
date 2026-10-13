@@ -4,8 +4,13 @@ LazyFetcher
 build/*
 .vscode/*
 CMakeFiles/*
+CMakeFiles
+_deps/googletest-build/*
+_deps/googletest-src/*
 cmake_install.cmake
 CMakeCache.txt
+CMake*
+^CMakeLists.txt
 faTest/*
 build/
 CMakeFiles/*

@@ -1,3 +1,0 @@
-/home/llf/faNotify/CMakeFiles/LazyFetcher.dir
-/home/llf/faNotify/CMakeFiles/edit_cache.dir
-/home/llf/faNotify/CMakeFiles/rebuild_cache.dir

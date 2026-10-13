@@ -1,15 +1,14 @@
-#include <vector>
 #include <cstdint>
 #include <string>
 
-#include "../../smallfilesBuffer.hpp"
+#include "../smallfilesBuffer.hpp"
 
 
 struct fileOp {
-    std::vector<slab*> frameBuffer; //imma get rid of this garbage 
     
     std::string filePath;
-    uint32_t filePosPointer;
+    uint32_t filePosPointer = 0;
+    uint16_t targetWrite = 0;
     
     int fanotifyFd;
     int networkFd;

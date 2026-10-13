@@ -13,13 +13,18 @@
 
 #include "../smallfilesBuffer.hpp"
 #include "../utils/streamDecodeWrite.hpp"
+#include "fileOp.hpp"
 
 
+struct ngStaticContext{
+    bufferPool *bPool;
+    io_uring* ring;
+    int eventChanFd;
+    int* serverFd;
+};
 
-
-void networkEventLoop(io_uring* ring, int *eventChanFd) {
+void networkEventLoop(io_uring* ring, int *eventChanFd, std::string serverEndp) {
    //gotta wipe theese
-    int clientFd = -1;
 
     
     //figure out how to use IORING_SETUP_SQPOLL
@@ -35,7 +40,7 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
     std::unordered_map<int32_t, fileOp> activeFilePulls;
 
     
-    globalCBctx = {bPool, &activeFilePulls, ring, *eventChanFd, &clientFd};
+    ngStaticContext globalCBctx = {bPool, ring, *eventChanFd, nullptr};
    
     
     nghttp2_session_callbacks* callbacks;
@@ -45,110 +50,11 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
     
 
     nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, );
-
+    nghttp2_session_callbacks_set_on_header_recv_callback(callbacks, );
+    nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, );
 
     //dont know what to use this for, might have to start thinking about it when i decide to do the server
     
-    auto reworkedWriter = [](nghttp2_session *session, 
-        uint8_t flags, int32_t stream_id, 
-        const uint8_t *data, size_t len, void *user_data) -> int {
-
-
-
-        auto ctx = static_cast<parseCallbackCtx*>(user_data);
-        
-        auto fOp = &ctx->activeFilePulls->find(stream_id)->second;
-
-        if(fOp->fileDesc == -1){
-            fOp->fileDesc = open(fOp->filePath.c_str(), O_WRONLY, 0644);
-        }
-
-        struct stat fileStat;
-        fstat(fOp->fileDesc, &fileStat);
-        // for now 4 separate SQEs are the lower bound for a small buf pool
-        if(fileStat.st_size < 16392*8){
-            //append-slab for a small file, 16kb buffer a piece
-            
-            //first operation init
-            if(fOp->openOps == -1){
-                fOp->openOps = fileStat.st_size / 16392;
-                fOp->openOps += fileStat.st_size % 16392;
-            }
-
-            if(len<=16392){
-                if(fOp->frameBuffer.empty()){
-                    slab* slb = ctx->bPool->getSlab();
-                    fOp->frameBuffer.push_back(slb);
-                }
-                
-                slab* slb = fOp->frameBuffer.back();
-
-                memcpy(slb->data + slb->written, data, len);
-                slb->written += len;
-
-                fOp->frameBuffer.push_back(slb);
-                
-            }else{
-                int divCount = len / 16392;
-                // this is complete garbage, one large file can block out everything without even using it 
-                for(int i = 0; i < divCount; i++){
-
-                    slab* slb = ctx->bPool->getSlab();
-                    memcpy(slb->data + slb->written, data + i * 16392, 16392);
-                    slb->written += 16392;
-                    fOp->frameBuffer.push_back(slb);
-                }
-
-                if(len - divCount * 16392 > 0){
-                    slab* slb = ctx->bPool->getSlab();
-                    memcpy(slb->data + slb->written, data + divCount * 16392, len - divCount * 16392);
-                    slb->written += len - divCount * 16392;
-                    fOp->frameBuffer.push_back(slb);
-                }
-            }
-
-
-
-        }
-        
-        //bigger buffer range if needed to add later
-
-
-
-        iovec iov[fOp->frameBuffer.size()];
-        for(auto it : fOp->frameBuffer){
-            if(it->written == 0){ continue; }
-            if(it->written < sizeof(it->data)){ throw std::runtime_error("Slab was nullptr in chunk_recv"); }
-
-            //this is the full buffer path
-            if(it->written == sizeof(it->data)){
-
-                pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
-                
-                io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
-                io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
-                io_uring_sqe_set_data(sqe, &fOp);
-            
-                io_uring_submit(ctx->ring);
-            }
-
-            //this is the equal to fatruncate record for files under the buffer size
-            //one open op set statically means its under buffer size anyhow
-            if((it->written < sizeof(it->data)) and (fOp->openOps == 1)){
-                pointOffset pOff = chunkDecode(fOp->frameBuffer.back()->data, fOp->frameBuffer.back()->written);
-                
-                io_uring_sqe* sqe = io_uring_get_sqe(ctx->ring);
-                io_uring_prep_write(sqe, fOp->fileDesc, fOp->frameBuffer.back()->data + pOff.trimLength, fOp->frameBuffer.back()->written - pOff.trimLength, pOff.offsetPtr);
-                io_uring_sqe_set_data(sqe, &fOp);
-                
-                io_uring_submit(ctx->ring);
-            }
-        }
-
-
-    };
-
-    nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, );
 
 
 
@@ -158,17 +64,17 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
     addr.sin_port = htons(8080);
     inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
 
-    clientFd = socket(AF_INET, SOCK_STREAM, 0);
+    *serverFd = socket(AF_INET, SOCK_STREAM, 0);
     
 
-    connect(clientFd, (struct sockaddr*)&addr, sizeof(addr));
+    connect(serverFd, (struct sockaddr*)&addr, sizeof(addr));
 
     
 
 
 
     int epollfd = epoll_create1(0);
-    epoll_ctl(epollfd, EPOLL_CTL_ADD, clientFd, nullptr);
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, serverFd, nullptr);
     epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, nullptr);
     epoll_event event;
 
@@ -217,7 +123,7 @@ void networkEventLoop(io_uring* ring, int *eventChanFd) {
 
 
         for(int x = 0; x < 4; x++){
-            ssize_t readNum = read(clientFd, buffer, sizeof(buffer));
+            ssize_t readNum = read(serverFd, buffer, sizeof(buffer));
             if(readNum <= 0){
                 break;
             }

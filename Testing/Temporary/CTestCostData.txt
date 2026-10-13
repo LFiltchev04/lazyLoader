@@ -1,6 +1,0 @@
-FanotifyAccessTest.fanotifyThreadTest 0 0
-FanotifyFdNameResolveTest.resolveFdFilename 1 0.0079525
-FanotifyWorkerTest.readUnblockPass 5 0.000980046
-Sanity.Works 16 0.000159557
----
-FanotifyAccessTest.fanotifyThreadTest

@@ -11,12 +11,13 @@
 
 
 #include "../smallfilesBuffer.hpp"
-#include "../utils/streamDecodeWrite.hpp"
 #include "fileOp.hpp"
 #include "netCallbacks/requestResource.hpp"
 #include "fanotifyNetworkInit.hpp"
 #include "netCallbacks/parseCallbackCtx.hpp"
-
+#include "netCallbacks/frameRecv.hpp"
+#include "netCallbacks/headerRecv.hpp"
+#include "netCallbacks/chunkWriter.hpp"
 
 
 void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverEndp, bufferPool* bPool) {
@@ -90,9 +91,9 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
 
             nghttp2_session_client_new(&session, callbacks, &globalCBctx);
     
-            nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, );
-            nghttp2_session_callbacks_set_on_header_callback2(callbacks, );
-            nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, );
+            nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, frameRecvCb);
+            nghttp2_session_callbacks_set_on_header_callback(callbacks, headerCb);
+            nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, dataChunkWriter);
 
             std::cout << "Received fanotify network init " << i->fPath << std::endl;
             sendHeaders(session, "fromContext", serverSock, globalCBctx);

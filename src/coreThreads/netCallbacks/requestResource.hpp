@@ -1,6 +1,8 @@
 #include <nghttp2/nghttp2.h>
 #include <string>
 #include <unistd.h>
+#include <fcntl.h>
+#include "../fileOp.hpp"
 
 #define MAKE_NV(NAME, VALUE) \
     { (uint8_t *)(NAME), (uint8_t *)(VALUE), sizeof(NAME) - 1, sizeof(VALUE) - 1, NGHTTP2_NV_FLAG_NONE }
@@ -24,6 +26,13 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
     ssize_t messageWrites = sizeof(nvArr);
     ssize_t serializeWrites = sizeof(nvArr);
     ssize_t delta = 0;
+
+    fileOp *fop = new fileOp();
+    fop->filePath = filePath;
+    fop->fileFd = open(filePath.c_str(), O_RDWR);
+    fop->filePosPointer = 0;
+    fop->networkFd = outgoingFd;
+
 
     //just makes sure the message went out properly
     while((messageWrites > 0) and (serializeWrites > 0)){

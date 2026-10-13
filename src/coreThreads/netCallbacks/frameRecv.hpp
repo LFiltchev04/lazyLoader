@@ -12,15 +12,16 @@ int frameRecvCb(nghttp2_session *session, const nghttp2_frame *frame, void *user
 
         //ugly cast but eh
 
-        fileOp *ctx = new fileOp();
-        auto tCast = static_cast<void*>(ctx);
-        nghttp2_session_set_stream_user_data(session, frame->headers.hd.stream_id, tCast);
+        fileOp *ctx;        
 
         if(frame->headers.cat == NGHTTP2_HCAT_RESPONSE){
             //this is where the 200 OK ought to result in a state machine reservation for an incoming download request
             std::cout << "server side 200 on file pull" << std::endl;
+            ctx = new fileOp();
 
             
+            auto tCast = static_cast<void*>(ctx);
+            nghttp2_session_set_stream_user_data(session, frame->headers.hd.stream_id, tCast);
             
         }
 

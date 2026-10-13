@@ -10,7 +10,10 @@ struct fileOp {
     
     std::string filePath;
     uint32_t filePosPointer;
+    
     int fanotifyFd;
     int networkFd;
+    int fileFd;
+
     int openOps = 0;
 };

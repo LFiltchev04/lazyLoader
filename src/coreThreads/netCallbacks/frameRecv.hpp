@@ -34,6 +34,8 @@ int frameRecvCb(nghttp2_session *session, const nghttp2_frame *frame, void *user
             //}
             
             //activePulls->erase(frame->hd.stream_id);
+
+            delete ctx;
         }
         
         return 0;

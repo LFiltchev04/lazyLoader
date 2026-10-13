@@ -1,0 +1,79 @@
+Start testing: Oct 12 09:17 UTC
+----------------------------------------------------------
+1/3 Testing: FanotifyAccessTest.fanotifyThreadTest
+1/3 Test: FanotifyAccessTest.fanotifyThreadTest
+Command: "/home/llf/faNotify/LazyFetcherTests" "--gtest_filter=FanotifyAccessTest.fanotifyThreadTest" "--gtest_also_run_disabled_tests"
+Directory: /home/llf/faNotify
+"FanotifyAccessTest.fanotifyThreadTest" start time: Oct 12 09:17 UTC
+Output:
+----------------------------------------------------------
+Running main() from /home/llf/faNotify/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = FanotifyAccessTest.fanotifyThreadTest
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from FanotifyAccessTest
+[ RUN      ] FanotifyAccessTest.fanotifyThreadTest
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Failed.
+"FanotifyAccessTest.fanotifyThreadTest" end time: Oct 12 09:17 UTC
+"FanotifyAccessTest.fanotifyThreadTest" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/3 Testing: FanotifyFdNameResolveTest.resolveFdFilename
+2/3 Test: FanotifyFdNameResolveTest.resolveFdFilename
+Command: "/home/llf/faNotify/LazyFetcherTests" "--gtest_filter=FanotifyFdNameResolveTest.resolveFdFilename" "--gtest_also_run_disabled_tests"
+Directory: /home/llf/faNotify
+"FanotifyFdNameResolveTest.resolveFdFilename" start time: Oct 12 09:17 UTC
+Output:
+----------------------------------------------------------
+Running main() from /home/llf/faNotify/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = FanotifyFdNameResolveTest.resolveFdFilename
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from FanotifyFdNameResolveTest
+[ RUN      ] FanotifyFdNameResolveTest.resolveFdFilename
+event resolve output /home/llf/faNotify/testfileOne
+[       OK ] FanotifyFdNameResolveTest.resolveFdFilename (4 ms)
+[----------] 1 test from FanotifyFdNameResolveTest (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"FanotifyFdNameResolveTest.resolveFdFilename" end time: Oct 12 09:17 UTC
+"FanotifyFdNameResolveTest.resolveFdFilename" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: Sanity.Works
+3/3 Test: Sanity.Works
+Command: "/home/llf/faNotify/LazyFetcherTests" "--gtest_filter=Sanity.Works" "--gtest_also_run_disabled_tests"
+Directory: /home/llf/faNotify
+"Sanity.Works" start time: Oct 12 09:17 UTC
+Output:
+----------------------------------------------------------
+Running main() from /home/llf/faNotify/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = Sanity.Works
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Sanity
+[ RUN      ] Sanity.Works
+[       OK ] Sanity.Works (0 ms)
+[----------] 1 test from Sanity (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"Sanity.Works" end time: Oct 12 09:17 UTC
+"Sanity.Works" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 12 09:17 UTC

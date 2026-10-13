@@ -1,0 +1,5 @@
+if(EXISTS "/home/llf/faNotify/LazyFetcherTests[1]_tests.cmake")
+  include("/home/llf/faNotify/LazyFetcherTests[1]_tests.cmake")
+else()
+  add_test(LazyFetcherTests_NOT_BUILT LazyFetcherTests_NOT_BUILT)
+endif()

@@ -1,5 +1,6 @@
 #include "databaseSingleton.hpp"
 #include <iostream>
+#include <fstream>
 
 databaseSingleton::databaseSingleton(){
     mdb_env_create(&env);
@@ -113,6 +114,11 @@ void databaseSingleton::registerNewBlob(const char key[39]){
 
     this->blobStateTable[key] = newBstate;
     //goddamn stupid ass goofy forever temporary fixes i just goddamn cant, i damn know this is staying here forever
+    std::ifstream preloadListFile(("/tmp/preloadLists/" + std::string(key) + "/list").c_str());
+    nlohmann::json preloadListJson;
+    preloadListFile >> preloadListJson;
+
+    this->blobStateTable[key]->ingestPreloadList(preloadListJson);
     this->blobStateTable[key]->materializeBlob();
 
 }

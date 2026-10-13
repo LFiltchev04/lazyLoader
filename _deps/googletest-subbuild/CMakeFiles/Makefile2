@@ -63,14 +63,122 @@ CMAKE_BINARY_DIR = /home/llf/faNotify/_deps/googletest-subbuild
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+<<<<<<< HEAD:CMakeFiles/Makefile2
+all: CMakeFiles/LazyFetcherLib.dir/all
+all: CMakeFiles/LazyFetcher.dir/all
+all: CMakeFiles/LazyFetcherTests.dir/all
+all: _deps/googletest-build/all
+=======
 all: CMakeFiles/googletest-populate.dir/all
+>>>>>>> origin/main:_deps/googletest-subbuild/CMakeFiles/Makefile2
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: _deps/googletest-build/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+<<<<<<< HEAD:CMakeFiles/Makefile2
+clean: CMakeFiles/LazyFetcherLib.dir/clean
+clean: CMakeFiles/LazyFetcher.dir/clean
+clean: CMakeFiles/LazyFetcherTests.dir/clean
+clean: _deps/googletest-build/clean
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory _deps/googletest-build
+
+# Recursive "all" directory target.
+_deps/googletest-build/all: _deps/googletest-build/googlemock/all
+.PHONY : _deps/googletest-build/all
+
+# Recursive "preinstall" directory target.
+_deps/googletest-build/preinstall: _deps/googletest-build/googlemock/preinstall
+.PHONY : _deps/googletest-build/preinstall
+
+# Recursive "clean" directory target.
+_deps/googletest-build/clean: _deps/googletest-build/googlemock/clean
+.PHONY : _deps/googletest-build/clean
+
+#=============================================================================
+# Directory level rules for directory _deps/googletest-build/googlemock
+
+# Recursive "all" directory target.
+_deps/googletest-build/googlemock/all: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
+_deps/googletest-build/googlemock/all: _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all
+_deps/googletest-build/googlemock/all: _deps/googletest-build/googletest/all
+.PHONY : _deps/googletest-build/googlemock/all
+
+# Recursive "preinstall" directory target.
+_deps/googletest-build/googlemock/preinstall: _deps/googletest-build/googletest/preinstall
+.PHONY : _deps/googletest-build/googlemock/preinstall
+
+# Recursive "clean" directory target.
+_deps/googletest-build/googlemock/clean: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/clean
+_deps/googletest-build/googlemock/clean: _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/clean
+_deps/googletest-build/googlemock/clean: _deps/googletest-build/googletest/clean
+.PHONY : _deps/googletest-build/googlemock/clean
+
+#=============================================================================
+# Directory level rules for directory _deps/googletest-build/googletest
+
+# Recursive "all" directory target.
+_deps/googletest-build/googletest/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+_deps/googletest-build/googletest/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
+.PHONY : _deps/googletest-build/googletest/all
+
+# Recursive "preinstall" directory target.
+_deps/googletest-build/googletest/preinstall:
+.PHONY : _deps/googletest-build/googletest/preinstall
+
+# Recursive "clean" directory target.
+_deps/googletest-build/googletest/clean: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/clean
+_deps/googletest-build/googletest/clean: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/clean
+.PHONY : _deps/googletest-build/googletest/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/LazyFetcherLib.dir
+
+# All Build rule for target.
+CMakeFiles/LazyFetcherLib.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=3,4,5,6,7,8,9,10,11,12,13 "Built target LazyFetcherLib"
+.PHONY : CMakeFiles/LazyFetcherLib.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/LazyFetcherLib.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 11
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/LazyFetcherLib.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : CMakeFiles/LazyFetcherLib.dir/rule
+
+# Convenience name for target.
+LazyFetcherLib: CMakeFiles/LazyFetcherLib.dir/rule
+.PHONY : LazyFetcherLib
+
+# clean rule for target.
+CMakeFiles/LazyFetcherLib.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherLib.dir/build.make CMakeFiles/LazyFetcherLib.dir/clean
+.PHONY : CMakeFiles/LazyFetcherLib.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/LazyFetcher.dir
+
+# All Build rule for target.
+CMakeFiles/LazyFetcher.dir/all: CMakeFiles/LazyFetcherLib.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcher.dir/build.make CMakeFiles/LazyFetcher.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=1,2 "Built target LazyFetcher"
+.PHONY : CMakeFiles/LazyFetcher.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/LazyFetcher.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 13
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/LazyFetcher.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : CMakeFiles/LazyFetcher.dir/rule
+=======
 clean: CMakeFiles/googletest-populate.dir/clean
 .PHONY : clean
 
@@ -90,6 +198,7 @@ CMakeFiles/googletest-populate.dir/rule: cmake_check_build_system
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/googletest-populate.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/_deps/googletest-subbuild/CMakeFiles 0
 .PHONY : CMakeFiles/googletest-populate.dir/rule
+>>>>>>> origin/main:_deps/googletest-subbuild/CMakeFiles/Makefile2
 
 # Convenience name for target.
 googletest-populate: CMakeFiles/googletest-populate.dir/rule
@@ -99,6 +208,139 @@ googletest-populate: CMakeFiles/googletest-populate.dir/rule
 CMakeFiles/googletest-populate.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/googletest-populate.dir/build.make CMakeFiles/googletest-populate.dir/clean
 .PHONY : CMakeFiles/googletest-populate.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/LazyFetcherTests.dir
+
+# All Build rule for target.
+CMakeFiles/LazyFetcherTests.dir/all: CMakeFiles/LazyFetcherLib.dir/all
+CMakeFiles/LazyFetcherTests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+CMakeFiles/LazyFetcherTests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=14,15,16,17 "Built target LazyFetcherTests"
+.PHONY : CMakeFiles/LazyFetcherTests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/LazyFetcherTests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 19
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/LazyFetcherTests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : CMakeFiles/LazyFetcherTests.dir/rule
+
+# Convenience name for target.
+LazyFetcherTests: CMakeFiles/LazyFetcherTests.dir/rule
+.PHONY : LazyFetcherTests
+
+# clean rule for target.
+CMakeFiles/LazyFetcherTests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/LazyFetcherTests.dir/build.make CMakeFiles/LazyFetcherTests.dir/clean
+.PHONY : CMakeFiles/LazyFetcherTests.dir/clean
+
+#=============================================================================
+# Target rules for target _deps/googletest-build/googlemock/CMakeFiles/gmock.dir
+
+# All Build rule for target.
+_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/depend
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=18,19 "Built target gmock"
+.PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
+
+# Build rule for subdir invocation for target.
+_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/rule
+
+# Convenience name for target.
+gmock: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/rule
+.PHONY : gmock
+
+# clean rule for target.
+_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/clean:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/clean
+.PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/clean
+
+#=============================================================================
+# Target rules for target _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir
+
+# All Build rule for target.
+_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
+_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/depend
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=20,21 "Built target gmock_main"
+.PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all
+
+# Build rule for subdir invocation for target.
+_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 6
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/rule
+
+# Convenience name for target.
+gmock_main: _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/rule
+.PHONY : gmock_main
+
+# clean rule for target.
+_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/clean:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/clean
+.PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/clean
+
+#=============================================================================
+# Target rules for target _deps/googletest-build/googletest/CMakeFiles/gtest.dir
+
+# All Build rule for target.
+_deps/googletest-build/googletest/CMakeFiles/gtest.dir/all:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/depend
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=22,23 "Built target gtest"
+.PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+
+# Build rule for subdir invocation for target.
+_deps/googletest-build/googletest/CMakeFiles/gtest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/rule
+
+# Convenience name for target.
+gtest: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/rule
+.PHONY : gtest
+
+# clean rule for target.
+_deps/googletest-build/googletest/CMakeFiles/gtest.dir/clean:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/clean
+.PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/clean
+
+#=============================================================================
+# Target rules for target _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir
+
+# All Build rule for target.
+_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/depend
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/llf/faNotify/CMakeFiles --progress-num=24,25 "Built target gtest_main"
+.PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
+
+# Build rule for subdir invocation for target.
+_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/llf/faNotify/CMakeFiles 0
+.PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/rule
+
+# Convenience name for target.
+gtest_main: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/rule
+.PHONY : gtest_main
+
+# clean rule for target.
+_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/clean:
+	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/clean
+.PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

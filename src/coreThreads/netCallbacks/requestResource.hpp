@@ -33,7 +33,6 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
     fop->filePosPointer = 0;
     fop->networkFd = outgoingFd;
 
-
     //just makes sure the message went out properly
     while((messageWrites > 0) and (serializeWrites > 0)){
         if(serializeWrites > 0){

@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/LazyFetcher.dir/main.cpp.o -o LazyFetcher  libLazyFetcherLib.a /usr/lib/x86_64-linux-gnu/liblmdb.so -lnghttp2 

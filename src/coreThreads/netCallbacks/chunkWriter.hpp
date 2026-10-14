@@ -19,10 +19,12 @@ int dataChunkWriter(nghttp2_session *session,
         const uint8_t *data, size_t len, 
         void *user_data){
         //could maybe manage thread contention better but it will have to work for now, lots of bugs possible if i decide to manually lock/unlock the thing
-        std::cout << "on_data_chunk_recv_callback: " << len << "\n";
+            printf("\n\n\n DATA WRITER \n\n\n");
+
         auto& ring = *static_cast<parseCallbackCtx*>(user_data)->ring;
         auto& eventChanFd = static_cast<parseCallbackCtx*>(user_data)->eventChanFd;
         
+        printf("data writer is up?\n");
         
         auto t = nghttp2_session_get_stream_user_data(session, stream_id);
 
@@ -41,6 +43,9 @@ int dataChunkWriter(nghttp2_session *session,
                 }
             }
         
+            pointOffset poffset;
+            poffset.chunkSize = 600;
+            poffset.offsetPtr = 0;
             for(size_t x = 0; x < len-sizeof(pointOffset);){
                 auto sqe = io_uring_get_sqe(&ring);
                 io_uring_sqe_set_data(sqe, it);
@@ -51,10 +56,11 @@ int dataChunkWriter(nghttp2_session *session,
                 //}
 
                 uint8_t* constCast = const_cast<uint8_t*>(&data[x]);
-                pointOffset poffset = chunkDecode(constCast, len);
+                //pointOffset poffset = chunkDecode(constCast, len);
 
+                printf("submitting uring\n");
                 //theese can be submitted, since the data coming over is sequential and properly sized its easy to just put it in there
-                io_uring_prep_write(sqe, it->fileFd, &constCast[x], poffset.chunkSize, it->filePosPointer);
+                io_uring_prep_write(sqe, it->fileFd, &constCast[x], 1024, 0);
                 it->filePosPointer += poffset.chunkSize;
                 it->openOps++;
                 

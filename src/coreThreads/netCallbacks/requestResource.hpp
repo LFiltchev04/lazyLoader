@@ -11,6 +11,25 @@
     { (uint8_t *)(NAME), (uint8_t *)(VALUE), sizeof(NAME) - 1, sizeof(VALUE) - 1, NGHTTP2_NV_FLAG_NONE }
 
 
+bool flushSession(nghttp2_session* session, int sock){
+    while(true){
+        const uint8_t* data = nullptr;
+        ssize_t len = nghttp2_session_mem_send(session, &data);
+        if(len < 0) return false;
+        if(len == 0) return true;
+
+        ssize_t sent = 0;
+        while(sent < len){
+            ssize_t w = write(sock, data + sent, len - sent);
+            if(w < 0){
+                if(errno == EINTR || errno == EAGAIN) continue;
+                return false;
+            }
+            sent += w;
+        }
+    }
+}
+
 void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd, void* userDataCtx){
 
     printf("Sending headers for %s\n", filePath.c_str());
@@ -45,6 +64,6 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
         return;
     }
 
-
+    flushSession(session, outgoingFd);
     printf("Finished sending headers for %s\n", filePath.c_str());
 }

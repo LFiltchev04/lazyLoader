@@ -36,6 +36,7 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
             return;
         }
 
+        printf("completion arrived\n");
         unsigned head;
         unsigned int c = 0u;
         ringLock.lock();

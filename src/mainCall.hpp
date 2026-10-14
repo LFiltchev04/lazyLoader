@@ -5,6 +5,5 @@
 void startApp(){
     databaseSingleton globalInstance;
 
-    container c;
 
 }

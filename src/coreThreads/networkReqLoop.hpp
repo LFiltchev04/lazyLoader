@@ -44,9 +44,8 @@ bool idempSockConnect(int& sock, int& epfd, sockaddr_in& addr){
         return false;
     }
 
-    //nonblocking so the drain loop in the event loop can't stall on an empty socket
-    fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
-
+    
+    
     printf("Connected to server on fd %d\n", sock);
     epoll_event eventExtern{};
     eventExtern.events = EPOLLIN;
@@ -73,7 +72,6 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
     event.data.fd = fanotifyToNetwork;
     epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, &event);
 
-    //callbacks are copied into the session when it is created, so they have to be fully set up before nghttp2_session_client_new
     nghttp2_session_callbacks* callbacks;
     nghttp2_session_callbacks_new(&callbacks);
     nghttp2_session_callbacks_set_on_frame_recv_callback(callbacks, frameRecvCb);
@@ -109,6 +107,13 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
             if(session == nullptr){
                 nghttp2_session_client_new(&session, callbacks, connCtx);
                 //connection preface + SETTINGS
+                nghttp2_settings_entry entr;
+                entr.settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
+                entr.value = 100;
+                entr.settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
+                entr.value = 65535;
+                nghttp2_submit_settings(session, NGHTTP2_FLAG_NONE, &entr, 2);
+                
                 nghttp2_submit_settings(session, NGHTTP2_FLAG_NONE, nullptr, 0);
             }
 
@@ -120,13 +125,17 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
             ringLock.lock();
             while(true){
                 ssize_t readNum = read(serverSock, buffer, sizeof(buffer));
+                printf("read %zd bytes\n", readNum);
                 
+
                 if(readNum <= 0){
                     if(readNum == 0){
                         std::cout << "server closed connection" << std::endl;
                         epoll_ctl(epollfd, EPOLL_CTL_DEL, serverSock, nullptr);
+                        
                         close(serverSock);
                         serverSock = -1;
+
                         nghttp2_session_del(session);
                         session = nullptr;
                     }
@@ -134,7 +143,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
                 }
                 std::cout << "read " << readNum << " bytes\n";
                 ssize_t used = nghttp2_session_mem_recv(session, reinterpret_cast<const uint8_t*>(buffer), readNum);
-                
+                printf("consumed %zd bytes\n", used);
             }
             
             ringLock.unlock();

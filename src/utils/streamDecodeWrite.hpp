@@ -1,3 +1,4 @@
+#pragma once
 //is used exclusivley for decoding partial uploads asynchronously
 
 
@@ -11,7 +12,7 @@ struct pointOffset{
 };
 
 //returns metadata on precise write location plus advances the data pointer past the metadata header block
-pointOffset chunkDecode(uint8_t* dataPtr, ssize_t chunkSize){
+inline pointOffset chunkDecode(uint8_t* dataPtr, ssize_t dataLen){
     uint64_t offsetPtr = *((uint64_t*)dataPtr);
     uint16_t chunkSize = *((uint16_t*)(dataPtr + sizeof(uint64_t) + sizeof(uint16_t)));
     

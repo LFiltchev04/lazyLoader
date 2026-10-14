@@ -1,3 +1,4 @@
+#pragma once
 #include <nghttp2/nghttp2.h>
 #include <iostream>
 #include <unordered_map>

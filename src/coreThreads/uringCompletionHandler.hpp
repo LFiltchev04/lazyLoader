@@ -1,18 +1,25 @@
+#pragma once
 #include <sys/epoll.h>
 #include <liburing.h>
 #include <iostream>
+#include <mutex>
+#include "sys/eventfd.h"
 
 #include "fileOp.hpp"
 #include "uringCompletionEmit.hpp"
 
 
 //i do not yet know whether i want to turn this into its separate thread or just integrate it in the fd loop, will see.
-void uringCompletionHandler(io_uring& ring, int& uringToFanotify) {
+void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ringLock) {
     int epfd = epoll_create1(0);    
 
     epoll_event event;
     event.events = EPOLLIN;
-    int epInitCode = epoll_ctl(epfd, EPOLL_CTL_ADD, ring.ring_fd, &event);
+
+    int evfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    io_uring_register_eventfd(&ring, evfd);
+
+    int epInitCode = epoll_ctl(epfd, EPOLL_CTL_ADD, evfd, &event);
     if(epInitCode < 0){
         std::cout << "epoll_ctl for uring handler failed" << std::endl;
         return;
@@ -30,6 +37,7 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify) {
 
         unsigned head;
         unsigned int c = 0u;
+        ringLock.lock();
         io_uring_for_each_cqe(&ring, head, cqe){
 
             auto* ctx = static_cast<fileOp*>(io_uring_cqe_get_data(cqe));
@@ -46,6 +54,7 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify) {
 
             c++;
         }
+        ringLock.unlock();
 
     }
 }

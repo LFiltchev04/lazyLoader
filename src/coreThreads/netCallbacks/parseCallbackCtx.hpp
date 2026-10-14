@@ -1,6 +1,6 @@
+#pragma once
 #include <unordered_map>
 #include "../../smallfilesBuffer.hpp"
-
 
 struct parseCallbackCtx{
         bufferPool* bPool;

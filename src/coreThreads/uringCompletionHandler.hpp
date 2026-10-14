@@ -19,6 +19,7 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
 
     int evfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     io_uring_register_eventfd(&ring, evfd);
+    event.data.fd = evfd;
 
     int epInitCode = epoll_ctl(epfd, EPOLL_CTL_ADD, evfd, &event);
     if(epInitCode < 0){
@@ -27,10 +28,12 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
     }
 
     io_uring_cqe* cqe;
+    uint64_t eventfdBlackHole;
+    epoll_event ev;
     while(true){
         
 
-        int n = epoll_wait(epfd, &event, 1, -1);
+        int n = epoll_wait(epfd, &ev, 1, -1);
         if(n < 0){
             std::cout << "epoll_wait failed for uring handler" << std::endl;
             return;
@@ -40,8 +43,11 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
         unsigned head;
         unsigned int c = 0u;
         ringLock.lock();
+        read(ev.data.fd, &eventfdBlackHole, 8);
+
         io_uring_for_each_cqe(&ring, head, cqe){
 
+            printf("cqe drain event\n");
             auto* ctx = static_cast<fileOp*>(io_uring_cqe_get_data(cqe));
             if(cqe->res <= 0){
                 std::cout << "io_uring_peek_cqe failed with status: " << static_cast<int>(cqe->res) << std::endl;
@@ -49,13 +55,15 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
 
             //again, i am assuming it wont short at all so i leave it as is. 
             ctx->openOps--;
-            if(ctx->openOps != cqe->res){
+            if(ctx->targetWrite != cqe->res){
                 std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->openOps << " vs " << cqe->res << "\n\n\n\n";
-            }
-            
-
+            }            
             c++;
+
+            io_uring_cq_advance(&ring, c);
+
         }
+
         ringLock.unlock();
 
     }

@@ -91,8 +91,6 @@ TEST(networkComponents, basicNetworkRecieve){
 
     sleep(5);
    
-    pollfd pfd{uringToFan[0], POLLIN, 0};
-    int ready = poll(&pfd, 1, 5000);
     
 
 

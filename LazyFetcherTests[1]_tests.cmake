@@ -1,7 +1,0 @@
-add_test([=[FanotifyAccessTest.fanotifyThreadTest]=]  /home/llf/faNotify/LazyFetcherTests [==[--gtest_filter=FanotifyAccessTest.fanotifyThreadTest]==] --gtest_also_run_disabled_tests)
-set_tests_properties([=[FanotifyAccessTest.fanotifyThreadTest]=]  PROPERTIES WORKING_DIRECTORY /home/llf/faNotify SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-add_test([=[FanotifyFdNameResolveTest.resolveFdFilename]=]  /home/llf/faNotify/LazyFetcherTests [==[--gtest_filter=FanotifyFdNameResolveTest.resolveFdFilename]==] --gtest_also_run_disabled_tests)
-set_tests_properties([=[FanotifyFdNameResolveTest.resolveFdFilename]=]  PROPERTIES WORKING_DIRECTORY /home/llf/faNotify SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-add_test([=[Sanity.Works]=]  /home/llf/faNotify/LazyFetcherTests [==[--gtest_filter=Sanity.Works]==] --gtest_also_run_disabled_tests)
-set_tests_properties([=[Sanity.Works]=]  PROPERTIES WORKING_DIRECTORY /home/llf/faNotify SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-set(  LazyFetcherTests_TESTS FanotifyAccessTest.fanotifyThreadTest FanotifyFdNameResolveTest.resolveFdFilename Sanity.Works)

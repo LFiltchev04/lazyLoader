@@ -47,17 +47,23 @@ TEST(networkComponents, basicNetworkRecieve){
 
 
     //hardcoded paths but meh
-    int fd = open("/home/llf/faNotify/tests/tmp/testfile", O_CREAT | O_WRONLY, 0777);
+    int fd = open("/home/llf/faNotify/tests/tmp/testfile", O_CREAT | O_WRONLY | O_TRUNC, 0777);
+    if(fd < 0){
+        std::cout << "Failed to open test file for writing with errcode " << fd << std::endl;
+        throw std::runtime_error("Failed to open test file for writing");
+    }
     EXPECT_NE(fd, -1);
 
     std::string testData = "testAaaaaaaaaaaaaaaaagsfgfasdfsdfsxz";
-    int res = write(fd, testData.c_str(), sizeof(testData.c_str())-1);
-    EXPECT_EQ(res, sizeof(testData.c_str())-1);
+    testData.shrink_to_fit();
+
+    int res = write(fd, testData.c_str(), testData.size());
+    EXPECT_EQ(res, testData.size());
     close(fd);
 
-    fd = open("/home/llf/faNotify/tests/tmp/tgtTest", O_RDONLY | O_CREAT, 0777);
-    EXPECT_NE(fd, -1);
-    close(fd);
+    int tstFd = open("/home/llf/faNotify/tests/tmp/tgtTest", O_RDONLY | O_CREAT | O_TRUNC, 0777);
+    EXPECT_NE(tstFd, -1);
+    close(tstFd);
 
 
     //here the actual network trigger happens
@@ -67,6 +73,8 @@ TEST(networkComponents, basicNetworkRecieve){
     i->fPath = "/home/llf/faNotify/tests/tmp/tgtTest";
     write(fanToNet[1], &i, sizeof(fanotifyNetworkInit));
 
+    //cleanup
+    std::system("sudo kill $(pgrep nghttpd)");
     serverThread.join();
     netparseThread.join();
     completionHandlerThread.join();

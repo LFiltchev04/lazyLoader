@@ -12,16 +12,8 @@ int headerCb(nghttp2_session *session, const nghttp2_frame *frame, const uint8_t
         std::string_view value_view(reinterpret_cast<const char*>(value), valuelen);
 
         
-        if(name_view == ":status" and value_view == "200"){
-            return 0;
-        }else{
-            auto t = nghttp2_session_get_stream_user_data(session, frame->hd.stream_id);
-            delete static_cast<parseCallbackCtx*>(t);
-
-            //does it kill the whole stream? 
-            return -1;
+        if(name_view == ":status" and value_view != "200"){
+            return NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
         }
-
-        
-
+        return 0;
     }

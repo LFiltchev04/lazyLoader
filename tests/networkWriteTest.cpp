@@ -2,7 +2,7 @@
 #include <thread>
 #include <liburing.h>
 #include <mutex>
-
+#include <poll.h>
 
 #include "../src/coreThreads/networkReqLoop.hpp"
 #include "../src/coreThreads/uringCompletionHandler.hpp"
@@ -57,9 +57,6 @@ TEST(networkComponents, basicNetworkRecieve){
 
     //makes sure it didnt blow out of the worker right away
     EXPECT_FALSE(netparseThread.joinable());
-
-    
-
    
 
 
@@ -93,9 +90,18 @@ TEST(networkComponents, basicNetworkRecieve){
     std::cout << "Sent network init request" << std::endl;
 
 
-    
+    //read(fd, nullptr, 0) returns 0 immediately, so poll for the completion emit instead
+    pollfd pfd{uringToFan[0], POLLIN, 0};
+    int ready = poll(&pfd, 1, 5000);
+    if(ready <= 0){
+        std::cout << "Timeout waiting for completion" << std::endl;
+    }
+    EXPECT_GT(ready, 0);
+
+
 
     std::system("sudo kill $(pgrep nghttpd)");
     //unlink("/home/llf/faNotify/tests/tmp/srcFile");
     //unlink("/home/llf/faNotify/tests/tmp/tgtTest");
+    printf("exiting");
 }

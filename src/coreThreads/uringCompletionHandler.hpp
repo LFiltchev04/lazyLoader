@@ -13,6 +13,7 @@
 void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ringLock) {
     int epfd = epoll_create1(0);    
 
+    printf("Starting uring completion handler\n");
     epoll_event event;
     event.events = EPOLLIN;
 

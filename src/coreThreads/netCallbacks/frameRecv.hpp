@@ -11,34 +11,14 @@
 int frameRecvCb(nghttp2_session *session, const nghttp2_frame *frame, void *user_data){
         std::cout << "on_frame_recv_callback: " << frame->hd.type << "\n";
 
-        //ugly cast but eh
-
-        fileOp *ctx;        
-
-        if(frame->headers.cat == NGHTTP2_HCAT_RESPONSE){
-            //this is where the 200 OK ought to result in a state machine reservation for an incoming download request
+        if(frame->hd.type == NGHTTP2_HEADERS && frame->headers.cat == NGHTTP2_HCAT_RESPONSE){
             std::cout << "server side 200 on file pull" << std::endl;
-            ctx = new fileOp();
-
-            
-            auto tCast = static_cast<void*>(ctx);
-            nghttp2_session_set_stream_user_data(session, frame->headers.hd.stream_id, tCast);
-            
         }
 
-        if(frame->headers.cat == NGHTTP2_FLAG_END_STREAM){
-            //dont know what to do with this
+        if((frame->hd.type == NGHTTP2_HEADERS || frame->hd.type == NGHTTP2_DATA) && (frame->hd.flags & NGHTTP2_FLAG_END_STREAM)){
             std::cout << "server side end of stream on file pull" << std::endl;
-            //fileOp *fo = &activePulls->find(frame->hd.stream_id)->second;
-            
-            //if(fo->fileDesc != 0){
-            //    close(fo->fileDesc);
-            //}
-            
-            //activePulls->erase(frame->hd.stream_id);
-
-            delete ctx;
+            //stream state (fileOp) is released once the outstanding uring writes complete
         }
-        
+
         return 0;
     }

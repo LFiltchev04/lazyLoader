@@ -22,20 +22,21 @@
 #include "netCallbacks/chunkWriter.hpp"
 
 
-void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverEndp, bufferPool* bPool, std::mutex& ringLock) {
-   //gotta wipe theese
-
-    
-    //figure out how to use IORING_SETUP_SQPOLL
-    if(io_uring_queue_init(8192, ring, 0) < 0){
-        std::cout << "Liburing ring init failed" << std::endl;
-        return;
+void idempSockConnect(int& sock, int& epfd, sockaddr_in& addr){
+    if(sock == -1){
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+        if(sock < 0){
+            std::cout << "Failed to create socket" << std::endl;
+            return;
+        }
+        epoll_event eventExtern;
+        eventExtern.events = EPOLLIN;
+        eventExtern.data.fd = sock;
+        epoll_ctl(epfd, EPOLL_CTL_ADD, sock, &eventExtern);
     }
+}
 
-    //this is the hashmap for disk uploads
-
-    
-   
+void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverEndp, bufferPool* bPool, std::mutex& ringLock) {
     
     nghttp2_session_callbacks* callbacks;
     nghttp2_session_callbacks_new(&callbacks);
@@ -49,27 +50,23 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
     
 
     struct sockaddr_in addr{};
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(7070);
-    inet_pton(AF_INET, serverEndp.c_str(), &addr.sin_addr);
 
-    int serverSock = socket(AF_INET, SOCK_STREAM, 0);
-    
 
-    int connRes = connect(serverSock, (struct sockaddr*)&addr, sizeof(addr));
-    if(connRes < 0){
-        std::cout << "Failed to connect to server" << std::endl;
-        return;
-    }
-
-    
+    int serverSock = -1;
 
 
 
     int epollfd = epoll_create1(0);
-    epoll_ctl(epollfd, EPOLL_CTL_ADD, serverSock, nullptr);
-    epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, nullptr);
+    epoll_event eventExtern;
+    eventExtern.events = EPOLLIN;
+    eventExtern.data.fd = serverSock;
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, serverSock, &eventExtern);
+
     epoll_event event;
+    event.events = EPOLLIN;
+    event.data.fd = fanotifyToNetwork;
+    epoll_ctl(epollfd, EPOLL_CTL_ADD, fanotifyToNetwork, &event);
+    
 
     //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff 
     char buffer[65536];
@@ -86,10 +83,13 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
 
         if(event.data.fd == fanotifyToNetwork){
 
+            idempSockConnect(serverSock, epollfd, addr);
             //will 100% break
+            printf("\n\nI ran\n\n");
+
             fanotifyNetworkInit *i;
             read(fanotifyToNetwork, &i, sizeof(fanotifyNetworkInit));
-            delete i;
+            
             
             //registers a stream ID and sync writes the small request header
             parseCallbackCtx *globalCBctx = new parseCallbackCtx{bPool, ring, i->fanPermFd, &serverSock};
@@ -101,11 +101,10 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
             nghttp2_session_callbacks_set_on_data_chunk_recv_callback(callbacks, dataChunkWriter);
 
             std::cout << "Received fanotify network init " << i->fPath << std::endl;
-            sendHeaders(session, i->fPath, serverSock, globalCBctx);
-        }
-
-
-        ringLock.lock();
+            sendHeaders(session, std::move(i->fPath), serverSock, globalCBctx);
+            delete i;
+        }else{
+            ringLock.lock();
         //data is dumped here for callbacks to handle, uring completions take care of 
         for(int x = 0; x < 4; x++){
             ssize_t readNum = read(serverSock, buffer, sizeof(buffer));
@@ -119,5 +118,9 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
         }
         ringLock.unlock();
     }
+        }
+
+
+        
 
 }

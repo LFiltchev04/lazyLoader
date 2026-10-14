@@ -84,7 +84,7 @@ TEST(networkComponents, basicNetworkRecieve){
     fanotifyNetworkInit *i = new fanotifyNetworkInit;
 
     i->fanPermFd = 67;
-    i->fPath = "/home/llf/faNotify/tests/tmp/tgtTest";
+    i->fPath = "/home/llf/faNotify/tests/tmp/srcFile";
     write(fanToNet[1], &i, sizeof(fanotifyNetworkInit*));
 
     std::cout << "Sent network init request" << std::endl;
@@ -96,7 +96,7 @@ TEST(networkComponents, basicNetworkRecieve){
     
 
 
-
+    sleep(10);
     std::system("sudo kill $(pgrep nghttpd)");
     //unlink("/home/llf/faNotify/tests/tmp/srcFile");
     //unlink("/home/llf/faNotify/tests/tmp/tgtTest");

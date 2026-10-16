@@ -12,6 +12,7 @@
 #include <mutex>
 #include <cerrno>
 #include <unistd.h>
+#include <sys/eventfd.h>
 
 
 #include "../smallfilesBuffer.hpp"
@@ -82,18 +83,57 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
     nghttp2_session* session = nullptr;
     parseCallbackCtx *connCtx = new parseCallbackCtx{bPool, ring, -1, &serverSock};
 
+
+
+
+
+
+
+
+
+
+     epoll_event uEvent;
+    uEvent.events = EPOLLIN;
+
+    int evfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    io_uring_register_eventfd(ring, evfd);
+    uEvent.data.fd = evfd;
+
+    int epInitCode = epoll_ctl(epollfd, EPOLL_CTL_ADD, evfd, &uEvent);
+    if(epInitCode < 0){
+        std::cout << "epoll_ctl for uring handler failed" << std::endl;
+        return;
+    }
+
+    io_uring_cqe* cqe;
+    uint64_t eventfdBlackHole;
+    epoll_event evs[2];
+
+
+
+
+
+
+
+
+
     //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff
     char buffer[65536];
 
     while(true){
-        int n = epoll_wait(epollfd, &event, 1, -1);
+
+        
+        int n = epoll_wait(epollfd, evs, 2, -1);
+
         if(n < 0){
             if(errno == EINTR) continue;
             std::cout << "epoll_wait failed" << std::endl;
             return;
         }
 
-        if(event.data.fd == fanotifyToNetwork){
+        for(int i = 0; i < 2; i++){
+
+        if(evs[i].data.fd == fanotifyToNetwork){
             fanotifyNetworkInit *i = nullptr;
             if(read(fanotifyToNetwork, &i, sizeof(i)) != sizeof(i) || i == nullptr){
                 continue;
@@ -117,12 +157,40 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
                 nghttp2_submit_settings(session, NGHTTP2_FLAG_NONE, nullptr, 0);
             }
 
-            std::cout << "Received fanotify network init " << i->fPath << std::endl;
-            connCtx->eventChanFd = i->fanPermFd;
-            sendHeaders(session, std::move(i->fPath), serverSock, connCtx);
-            delete i;
+                std::cout << "Received fanotify network init " << i->fPath << std::endl;
+                connCtx->eventChanFd = i->fanPermFd;
+                sendHeaders(session, std::move(i->fPath), serverSock, connCtx);
+                delete i;
+            }else if(evs[i].data.fd == evfd){
+
+                printf("completion arrived\n");
+                unsigned head;
+                unsigned int c = 0u;
+                read(evs[i].data.fd, &eventfdBlackHole, 8);
+
+                io_uring_for_each_cqe(ring, head, cqe){
+
+                printf("cqe drain event\n");
+                auto* ctx = static_cast<fileOp*>(io_uring_cqe_get_data(cqe));
+                if(cqe->res <= 0){
+                    std::cout << "io_uring_peek_cqe failed with status: " << static_cast<int>(cqe->res) << std::endl;
+                }
+
+                //again, i am assuming it wont short at all so i leave it as is. 
+                ctx->openOps--;
+                if(ctx->targetWrite != cqe->res){
+                
+                    std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->targetWrite << " vs " << cqe->res << "\n\n\n\n";
+                }            
+                //returns the allocated memory to the buf pool
+                ctx->bPool->freeSlab(ctx->slabBuffer);
+                ctx->slabBuffer = nullptr;
+                ctx->slabBuffer = nullptr;
+                c++;
+            }
+
+            io_uring_cq_advance(ring, c);
         }else{
-            ringLock.lock();
             while(true){
                 ssize_t readNum = read(serverSock, buffer, sizeof(buffer));
                 printf("read %zd bytes\n", readNum);
@@ -146,7 +214,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
                 printf("consumed %zd bytes\n", used);
             }
             
-            ringLock.unlock();
         }
     }
+}
 }

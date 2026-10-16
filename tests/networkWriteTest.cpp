@@ -20,10 +20,8 @@ TEST(networkComponents, basicNetworkRecieve){
 
     struct io_uring_params params{0};
 
-    params.flags = IORING_SETUP_SQPOLL;
-    params.sq_thread_idle = 9000;
-    //figure out how to use IORING_SETUP_SQPOLL
-    if(io_uring_queue_init_params(8192, &ring, &params) < 0){
+   
+    if(io_uring_queue_init(8192, &ring, 0) < 0){
         std::cout << "Liburing ring init failed" << std::endl;
         return;
     }
@@ -41,16 +39,6 @@ TEST(networkComponents, basicNetworkRecieve){
     int uringToFan[2];
     pipe(uringToFan);
 
-
-
-    std::thread netparseThread([&](){
-        networkEventLoop(&ring, fanToNet[0], "127.0.0.1", &pool, ringLock);
-    });
-    netparseThread.detach();
-    sleep(1);
-
-
-
     std::thread completionHandlerThread([&](){
         uringCompletionHandler(ring, uringToFan[1], ringLock);
     });
@@ -59,8 +47,18 @@ TEST(networkComponents, basicNetworkRecieve){
     EXPECT_FALSE(completionHandlerThread.joinable());
 
     //makes sure it didnt blow out of the worker right away
-    EXPECT_FALSE(netparseThread.joinable());
    
+
+    std::thread netparseThread([&](){
+        networkEventLoop(&ring, fanToNet[0], "127.0.0.1", &pool, ringLock);
+    });
+    netparseThread.detach();
+    sleep(1);
+
+
+    EXPECT_FALSE(netparseThread.joinable());
+
+
 
 
     //hardcoded paths but meh

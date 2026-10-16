@@ -1,6 +1,7 @@
 
 #pragma once
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
@@ -36,53 +37,52 @@ int dataChunkWriter(nghttp2_session *session,
         it->bPool = bufPool;
         
         if(it->fileFd < 0) {
-                
             // should unpack the layer from relative path but will work for now, maybe server side
             it->fileFd = open(it->filePath.c_str(), O_WRONLY, 0644);
             if (it->fileFd < 0) {
                 return -1;
             }
         }
-        
-            
-        auto sqe = io_uring_get_sqe(&ring);
-        io_uring_sqe_set_data(sqe, it);
-        
-        
-        
 
-        uint8_t* constCast = const_cast<uint8_t*>(data);
-        pointOffset poffset = chunkDecode(constCast, len);
-
-        printf("poffset is offsetPtr: %zu, chunkSize: %zu\n", poffset.offsetPtr, poffset.chunkSize);
-        //theese can be submitted, since the data coming over is sequential and properly sized its easy to just put it in there
-        
-        slab* slb;
-        
         if(it->slabBuffer == nullptr){
-            slb = bufPool->getSlab();
-            slb->written = len;
-            it->slabBuffer = slb;
-        }else{
-            slb = it->slabBuffer;
+            it->slabBuffer = bufPool->getSlab();
+            it->slabBuffer->written = 0;
+        }
+        slab* slb = it->slabBuffer;
+
+        if(slb->written + len > sizeof(slb->data)){
+            return -1;
         }
         
+        memcpy(slb->data + slb->written, data, len);
+        slb->written += len;
 
         if(!(flags & NGHTTP2_FLAG_END_STREAM)){
-            printf("END_STREAM flag not received\n");
-            memcpy(it->slabBuffer->data, data, len);
             return 0;
         }
-        
 
-        
-        io_uring_prep_write(sqe, it->fileFd, slb->data + slb->trim, poffset.chunkSize, poffset.offsetPtr);
+        if(slb->written < sizeof(pointOffset)){
+            return -1;
+        }
+
+        pointOffset poffset = chunkDecode(slb->data, slb->written);
+        if(slb->written < sizeof(pointOffset) + poffset.chunkSize){
+            return -1;
+        }
+
+        auto sqe = io_uring_get_sqe(&ring);
+        if(sqe == nullptr){
+            return -1;
+        }
+        io_uring_sqe_set_data(sqe, it);
+
+        printf("poffset is offsetPtr: %zu, chunkSize: %zu\n", (size_t)poffset.offsetPtr, (size_t)poffset.chunkSize);
+        io_uring_prep_write(sqe, it->fileFd, slb->data + sizeof(pointOffset), poffset.chunkSize, poffset.offsetPtr);
+        it->targetWrite = poffset.chunkSize;
         it->filePosPointer += poffset.chunkSize;
         it->openOps++;
 
-        printf("submitting uring\n");
         io_uring_submit(&ring);
-        
-        //cleanup logic to dump out the other state on fail of server pull for later
+
         return 0;
     }

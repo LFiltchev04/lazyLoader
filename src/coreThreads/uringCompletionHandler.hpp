@@ -67,6 +67,8 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
             }            
             //returns the allocated memory to the buf pool
             ctx->bPool->freeSlab(ctx->slabBuffer);
+            ctx->slabBuffer = nullptr;
+            ctx->slabBuffer = nullptr;
             c++;
 
 

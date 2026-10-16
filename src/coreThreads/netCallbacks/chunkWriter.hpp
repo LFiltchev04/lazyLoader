@@ -50,9 +50,6 @@ int dataChunkWriter(nghttp2_session *session,
         }
         slab* slb = it->slabBuffer;
 
-        if(slb->written + len > sizeof(slb->data)){
-            return -1;
-        }
         
         memcpy(slb->data + slb->written, data, len);
         slb->written += len;
@@ -60,11 +57,7 @@ int dataChunkWriter(nghttp2_session *session,
         if(!(flags & NGHTTP2_FLAG_END_STREAM)){
             return 0;
         }
-
-        if(slb->written < sizeof(pointOffset)){
-            return -1;
-        }
-
+        
         pointOffset poffset = chunkDecode(slb->data, slb->written);
         if(slb->written < sizeof(pointOffset) + poffset.chunkSize){
             return -1;

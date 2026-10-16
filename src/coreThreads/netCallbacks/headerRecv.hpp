@@ -15,5 +15,7 @@ int headerCb(nghttp2_session *session, const nghttp2_frame *frame, const uint8_t
         if(name_view == ":status" and value_view != "200"){
             return NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
         }
+
+        
         return 0;
     }

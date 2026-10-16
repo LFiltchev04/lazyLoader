@@ -62,7 +62,8 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
             //again, i am assuming it wont short at all so i leave it as is. 
             ctx->openOps--;
             if(ctx->targetWrite != cqe->res){
-                std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->openOps << " vs " << cqe->res << "\n\n\n\n";
+                
+                std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->targetWrite << " vs " << cqe->res << "\n\n\n\n";
             }            
             //returns the allocated memory to the buf pool
             ctx->bPool->freeSlab(ctx->slabBuffer);

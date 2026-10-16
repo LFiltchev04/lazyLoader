@@ -49,25 +49,38 @@ int dataChunkWriter(nghttp2_session *session,
         io_uring_sqe_set_data(sqe, it);
         
         
+        
 
         uint8_t* constCast = const_cast<uint8_t*>(data);
         pointOffset poffset = chunkDecode(constCast, len);
 
         printf("poffset is offsetPtr: %zu, chunkSize: %zu\n", poffset.offsetPtr, poffset.chunkSize);
-        printf("submitting uring\n");
         //theese can be submitted, since the data coming over is sequential and properly sized its easy to just put it in there
         
-        slab* slb = bufPool->getSlab();
-        slb->written = poffset.chunkSize;
-        slb->trim = sizeof(poffset);
+        slab* slb;
+        
+        if(it->slabBuffer == nullptr){
+            slb = bufPool->getSlab();
+            slb->written = len;
+            it->slabBuffer = slb;
+        }else{
+            slb = it->slabBuffer;
+        }
+        
 
-        it->slabBuffer = slb;
-        memcpy(slb->data+slb->trim, constCast + sizeof(pointOffset), poffset.chunkSize);
+        if(!(flags & NGHTTP2_FLAG_END_STREAM)){
+            printf("END_STREAM flag not received\n");
+            memcpy(it->slabBuffer->data, data, len);
+            return 0;
+        }
+        
 
-
+        
         io_uring_prep_write(sqe, it->fileFd, slb->data + slb->trim, poffset.chunkSize, poffset.offsetPtr);
         it->filePosPointer += poffset.chunkSize;
         it->openOps++;
+
+        printf("submitting uring\n");
         io_uring_submit(&ring);
         
         //cleanup logic to dump out the other state on fail of server pull for later

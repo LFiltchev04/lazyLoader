@@ -55,6 +55,8 @@ void reactorThread(int notify_fd) {
         printf("Intercepted mmap: addr=0x%lx, len=%lu, prot=0x%lx, flags=0x%lx (PID: %d)\n",
                addr, len, prot, flags, req->pid);
 
+
+               
         resp->id = req->id;
 
         resp->error = 0;

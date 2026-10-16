@@ -44,6 +44,7 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
     fileOp *fop = new fileOp();
     fop->filePath = filePath;
     fop->fileFd = open(filePath.c_str(), O_RDWR);
+    printf("file FD is: %d\n", fop->fileFd);
     fop->filePosPointer = 0;
     fop->networkFd = outgoingFd;
     fop->fanotifyFd = -1;

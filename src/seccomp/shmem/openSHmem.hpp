@@ -17,7 +17,6 @@ shmPage openSHmem(std::string name, int *epollLoop){
     shmPage pg;
 
     std::string completePath = "/tmp/shmSignals/" + name;
-    mkdir("/tmp/shmSignals", 0777);
 
     //THEESE HAVE TO BE DELETED 
     epoll_event* event = new epoll_event;

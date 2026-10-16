@@ -53,6 +53,7 @@ int dataChunkWriter(nghttp2_session *session,
         uint8_t* constCast = const_cast<uint8_t*>(data);
         pointOffset poffset = chunkDecode(constCast, len);
 
+        printf("poffset is offsetPtr: %zu, chunkSize: %zu\n", poffset.offsetPtr, poffset.chunkSize);
         printf("submitting uring\n");
         //theese can be submitted, since the data coming over is sequential and properly sized its easy to just put it in there
         
@@ -61,12 +62,13 @@ int dataChunkWriter(nghttp2_session *session,
         slb->trim = sizeof(poffset);
 
         it->slabBuffer = slb;
-        memcpy(slb->data+slb->trim, constCast, len-slb->written);
+        memcpy(slb->data+slb->trim, constCast + sizeof(pointOffset), poffset.chunkSize);
 
 
-        io_uring_prep_write(sqe, it->fileFd, slb->data, len, 0);
+        io_uring_prep_write(sqe, it->fileFd, slb->data + slb->trim, poffset.chunkSize, poffset.offsetPtr);
         it->filePosPointer += poffset.chunkSize;
         it->openOps++;
+        io_uring_submit(&ring);
         
         //cleanup logic to dump out the other state on fail of server pull for later
         return 0;

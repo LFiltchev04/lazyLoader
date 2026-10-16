@@ -1,6 +1,7 @@
 #include "fileAccessLoop.hpp"
+#include "../seccomp/faulterToNetwork.hpp"
 
-void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify){
+void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify, int *eventLoop){
     std::unordered_set<std::string> trackedFiles;
 
     
@@ -25,6 +26,8 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
         throw new std::runtime_error("epoll_create1 failed");
     }
 
+    *eventLoop = epFd;
+
     //unblock logic for fanotify events
     struct fanotify_response unblockOp;
     
@@ -46,7 +49,8 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
             break;
         }
 
-        
+        char buf[PATH_MAX];
+
         
 
         for (int i = 0; i < n; ++i) {
@@ -82,9 +86,10 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                 //all cases ought to get rid of this
                 delete emitData;
                 continue;
-            }
+            }else if(events[i].data.fd == fanFd){
+            //checks whetber event came in on a named pipe
+            
 
-            char buf[PATH_MAX];
             ssize_t len = read(fanFd, buf, sizeof(buf));
             if (len <= 0) {
                 if (errno == EINTR) continue;
@@ -123,9 +128,24 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                         write(*fanotifyToNetwork ,pullInit, sizeof(*pullInit));
                     }
                     
+                    }
                 }
+            }else{
+                //this is the user faulter, they come from weird points so its down to context tracking
 
+                int res = events[i].data.fd;
+                faulterToNetwork mm;
+                read(res, &mm, sizeof(mm));
+
+                fanotifyNetworkInit *pullInit = new fanotifyNetworkInit;
+                pullInit->offset = mm.offset;
+                
+                write(*fanotifyToNetwork, pullInit, sizeof(*pullInit));
+            
             }
         }
-    }
+
+
+
+    }//the exit of event loop
 }

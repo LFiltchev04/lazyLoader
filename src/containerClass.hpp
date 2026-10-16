@@ -1,5 +1,4 @@
-#ifndef CONTAINERCLASS_HPP
-#define CONTAINERCLASS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -37,4 +36,3 @@ class container{
     void setupFanotify(std::string treeRoot);
 };
 
-#endif // CONTAINERCLASS_HPP

@@ -32,10 +32,16 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
     epoll_event ev;
     while(true){
         
-
-        int n = epoll_wait(epfd, &ev, 1, -1);
+        int n = 0;
+        
+        n = epoll_wait(epfd, &ev, 1, -1);
+        
+        
+        
+        
         if(n < 0){
-            std::cout << "epoll_wait failed for uring handler" << std::endl;
+            if(errno == EINTR) continue;
+            std::cout << "epoll_wait failed for uring handler: " << strerror(errno) << std::endl;
             return;
         }
 
@@ -62,9 +68,9 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
             ctx->bPool->freeSlab(ctx->slabBuffer);
             c++;
 
-            io_uring_cq_advance(&ring, c);
 
         }
+        io_uring_cq_advance(&ring, c);
 
         ringLock.unlock();
 

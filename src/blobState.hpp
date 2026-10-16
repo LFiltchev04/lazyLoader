@@ -30,6 +30,8 @@ struct fileEntry{
 class blobState{
     static MDB_env *mdb_env;
     blobPresence presence = blobPresence::NEW;
+    
+
 
     char blobHash[39];
     bool staticBlob;

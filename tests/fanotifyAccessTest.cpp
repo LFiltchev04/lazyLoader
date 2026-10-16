@@ -66,7 +66,7 @@ TEST(FanotifyAccessTest, fanotifyThreadTest) {
     //its hella the other way around, how come they read from the start and write from the end 
     // "creat without an e the only mistake" my ass
     std::string basePath("/home/llf/tmp/fanotifyTest");
-    std::thread fileAccessThread(fileAccessEventLoop, nullptr, &basePath, &fanotifyToNetwork[1], &uringToFanotify[0]);
+    std::thread fileAccessThread(fileAccessEventLoop, nullptr, &basePath, &fanotifyToNetwork[1], &uringToFanotify[0], nullptr);
 
     int fdOne = open("/home/llf/tmp/fanotifyTest/testFileOne", O_RDONLY);
     int fdTwo = open("/home/llf/tmp/fanotifyTest/testFileTwo", O_RDONLY);

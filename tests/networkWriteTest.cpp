@@ -41,12 +41,6 @@ TEST(networkComponents, basicNetworkRecieve){
     int uringToFan[2];
     pipe(uringToFan);
 
-    std::thread completionHandlerThread([&](){
-        uringCompletionHandler(ring, uringToFan[1], ringLock);
-    });
-    completionHandlerThread.detach();
-    sleep(1);
-    EXPECT_FALSE(completionHandlerThread.joinable());
 
 
     std::thread netparseThread([&](){
@@ -54,6 +48,15 @@ TEST(networkComponents, basicNetworkRecieve){
     });
     netparseThread.detach();
     sleep(1);
+
+
+
+    std::thread completionHandlerThread([&](){
+        uringCompletionHandler(ring, uringToFan[1], ringLock);
+    });
+    completionHandlerThread.detach();
+    sleep(1);
+    EXPECT_FALSE(completionHandlerThread.joinable());
 
     //makes sure it didnt blow out of the worker right away
     EXPECT_FALSE(netparseThread.joinable());
@@ -70,6 +73,11 @@ TEST(networkComponents, basicNetworkRecieve){
 
     std::string testData = "testAaaaaaaaaaaaaaaaagsfgfasdfsdfsxz";
     testData.shrink_to_fit();
+
+    pointOffset poffset;
+    poffset.offsetPtr = 0;
+    poffset.chunkSize = testData.size();
+    write(fd, &poffset, sizeof(pointOffset));
 
     int res = write(fd, testData.c_str(), testData.size());
     EXPECT_EQ(res, testData.size());

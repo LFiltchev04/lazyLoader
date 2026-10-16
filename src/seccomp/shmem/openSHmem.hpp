@@ -6,17 +6,24 @@
 #include <sys/un.h>
 #include <sys/stat.h>
 #include <cstring>
+#include <sys/epoll.h>
 
 #include "../bufObj.hpp"
 #define SHMEM_SIZE 4096 //for now, one page only
 
 
-shmPage openSHmem(std::string name){
+shmPage openSHmem(std::string name, int *epollLoop){
     
     shmPage pg;
 
     std::string completePath = "/tmp/shmSignals/" + name;
     mkdir("/tmp/shmSignals", 0777);
+
+    //THEESE HAVE TO BE DELETED 
+    epoll_event* event = new epoll_event;
+    event->events = EPOLLIN;
+
+    epoll_ctl(*epollLoop, EPOLL_CTL_ADD, pg.ctrPipeFd, event);
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;

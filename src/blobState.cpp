@@ -110,10 +110,14 @@ void blobState::updateFileState(std::string relPath, fileState newState){
         .mv_data = &stateValue
     };
 
+
+
     int errCode = mdb_put(txn, tableInstance, &pathKey, &newValue, 0);
     if (errCode != 0) {
         throw std::runtime_error("Failed to update file state in database");
     }
+
+    mdb_txn_commit(txn);
 }
 
 void blobState::ingestPreloadList(nlohmann::json jsonArray){

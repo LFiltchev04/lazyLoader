@@ -18,4 +18,4 @@
 #include "../utils/addMarks.hpp"
 
 //base path is optional, the blobState object carries the data but testing with it in isolation is too much of a hassle
-void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify);
+void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify, int *eventLoop);

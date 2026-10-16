@@ -5,10 +5,12 @@
 
 struct shmPage{
     int memcpLocation;
+
     uint32_t len;
     std::string filename;
     int ctrPipeFd;
     container* ctrDb;
+    
 
     bool signalPageReady(){
         uint8_t signal = 1;

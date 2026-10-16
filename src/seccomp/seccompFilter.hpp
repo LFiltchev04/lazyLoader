@@ -11,9 +11,9 @@
 
 
 class seccompFilter{
-    std::string linkedHash;
+    std::string hash;
     public:
-    seccompFilter(const std::string& hash) : linkedHash(hash) {}
+    seccompFilter();
 
     int seccompFilterInit();
 };

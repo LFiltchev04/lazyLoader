@@ -1,5 +1,17 @@
 #include "seccompFilter.hpp"
 
+
+seccompFilter::seccompFilter() {
+    int fd = open("/etc/mmapHandle/hashID", O_RDONLY);
+
+    char buffer[512];
+    read(fd, buffer, sizeof(buffer));
+    close(fd);
+
+    hash = std::string(buffer);
+}   
+
+
 int seccompFilter::seccompFilterInit() {
     scmp_filter_ctx ctx;
     int notify_fd;

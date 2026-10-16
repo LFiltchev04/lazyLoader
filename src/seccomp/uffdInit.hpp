@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstring>
 #include <cerrno>
+#include <sys/ioctl.h>
 
 
 int mmapTrapFd(int flags) {
@@ -13,7 +14,7 @@ int mmapTrapFd(int flags) {
 
 //thats a pain, i need a separate binary to make it work
 //goddamnit
-void fault_handler_thread(int uffd_fd, long page_size) {
+void fault_handler_thread(int uffd_fd, long page_size, int position) {
     static std::vector<char> page_buffer(page_size);
 
     while (true) {
@@ -32,6 +33,7 @@ void fault_handler_thread(int uffd_fd, long page_size) {
             break;
         }
 
+
         // Handle page fault events
         if (msg.event == UFFD_EVENT_PAGEFAULT) {
             uint64_t fault_addr = msg.arg.pagefault.address;
@@ -44,8 +46,8 @@ void fault_handler_thread(int uffd_fd, long page_size) {
 
             // Prepare page content to resolve the fault
             const char* sample_data = "Hello from the userfaultfd handler thread!";
-            std::memset(page_buffer.data(), 0, page_size);
-            std::memcpy(page_buffer.data(), sample_data, std::strlen(sample_data));
+            
+
 
             // Copy data into the faulting page and resume execution
             struct uffdio_copy uffdio_copy;

@@ -2,6 +2,7 @@
 
 
 seccompFilter::seccompFilter() {
+
     int fd = open("/etc/mmapHandle/hashID", O_RDONLY);
 
     char buffer[512];
@@ -39,7 +40,20 @@ void seccompFilter::seccompFilterInit() {
 
 
 void seccompFilter::startWatcher() {
-    watcherTread = std::thread([this]() {
-        reactorThread(notifyFd);
-    });
+    if(!watcherFlag) {
+        watcherFlag = true;
+        watcherTread = std::thread([this]() {
+            reactorThread(notifyFd);
+        });
+    }
+}
+
+
+
+//forks out a new reactor thread per FD
+void seccompFilter::newUFFD(int position, int size) {
+    
+    
+
+
 }

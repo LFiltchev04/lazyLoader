@@ -49,12 +49,14 @@ void reactorThread(int notify_fd) {
         unsigned long prot  = req->data.args[2];
         unsigned long flags = req->data.args[3];
 
+
+        
+
         printf("Intercepted mmap: addr=0x%lx, len=%lu, prot=0x%lx, flags=0x%lx (PID: %d)\n",
                addr, len, prot, flags, req->pid);
 
         resp->id = req->id;
 
-        
         resp->error = 0;
         resp->val = 0;
         resp->flags = SECCOMP_USER_NOTIF_FLAG_CONTINUE;

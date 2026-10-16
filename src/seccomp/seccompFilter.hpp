@@ -12,13 +12,18 @@
 #include "seccompReactorThread.hpp"
 
 class seccompFilter{
-    std::string hash;
-    std::thread watcherTread;
-    int notifyFd;
+    bool watcherFlag = false;
+    static std::string hash;
+    static std::thread watcherTread;
+    std::string file;
+    static int notifyFd;
 
     public:
     seccompFilter();
 
+
     void seccompFilterInit();
     void startWatcher();
+
+    void newUFFD(int position, int size);
 };

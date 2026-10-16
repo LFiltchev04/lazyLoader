@@ -13,7 +13,7 @@
 
 
 
-void run_supervisor(int notify_fd) {
+void reactorThread(int notify_fd) {
     struct seccomp_notif *req;
     struct seccomp_notif_resp *resp;
 

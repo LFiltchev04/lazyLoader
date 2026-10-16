@@ -7,13 +7,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <thread>
 
-
+#include "seccompReactorThread.hpp"
 
 class seccompFilter{
     std::string hash;
+    std::thread watcherTread;
+    int notifyFd;
+
     public:
     seccompFilter();
 
-    int seccompFilterInit();
+    void seccompFilterInit();
+    void startWatcher();
 };

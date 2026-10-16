@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <cstring>
 
-#include "bufObj.hpp"
+#include "../bufObj.hpp"
 #define SHMEM_SIZE 4096 //for now, one page only
 
 

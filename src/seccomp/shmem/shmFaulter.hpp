@@ -7,15 +7,9 @@
 #include <cstdint>
 
 #include "containerClass.hpp"
+#include "../bufObj.hpp"
 
-struct shmPage{
-    void* memcpLocation;
-    uint32_t len;
-    std::string filename;
-    int ctrPipeFd;
-    container* ctrDb;
-    bool pipeWriter(void*data, size_t size);
-};
+
 
 class mmapIndexer{
     std::unordered_map<std::string, shmPage> pageMap; //maps container name to page buffer

@@ -1,5 +1,4 @@
 #include "fileAccessLoop.hpp"
-#include "../seccomp/faulterToNetwork.hpp"
 
 void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify, int *eventLoop){
     std::unordered_set<std::string> trackedFiles;
@@ -55,7 +54,8 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
 
         for (int i = 0; i < n; ++i) {
             if (events[i].data.fd == *uringToFanotify){
-                
+                //decrement as it has completed pull
+                inflightOpens--;
                 uringCompletionEmit *emitData;
                 read(*uringToFanotify, emitData, sizeof(*emitData));
 
@@ -125,23 +125,14 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                     pullInit->fanPermFd = meta->fd;
                     
                     if(meta->mask == FAN_CLASS_PRE_CONTENT) {
+                        //have to pull xattr for blob ownership
+                        
                         write(*fanotifyToNetwork ,pullInit, sizeof(*pullInit));
+                        inflightOpens++;
                     }
                     
                     }
                 }
-            }else{
-                //this is the user faulter, they come from weird points so its down to context tracking
-
-                int res = events[i].data.fd;
-                faulterToNetwork mm;
-                read(res, &mm, sizeof(mm));
-
-                fanotifyNetworkInit *pullInit = new fanotifyNetworkInit;
-                pullInit->offset = mm.offset;
-                
-                write(*fanotifyToNetwork, pullInit, sizeof(*pullInit));
-            
             }
         }
 

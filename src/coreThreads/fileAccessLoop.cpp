@@ -73,7 +73,7 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
 
                 //i am annoyed by the allocations and syscalls
                 //want to push it all to the mmaped DB ideally, that ought to resolve faster than this garbage
-                std::string pthResolv = resolveFdPath(emitData->accFd).value();
+                std::string pthResolv = resolveFdPath(emitData->accFd);
 
                 
                 if(emitData->writtenBytes){
@@ -114,33 +114,38 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                 //    continue;
                 //}
 
-                
+                if(meta->pid == getpid()){
+                    //unblock immediately, its the data writer
+                    unblockOp.response = FAN_ALLOW;
+                    unblockOp.fd = meta->fd;
+                    write(fanFd, &unblockOp, sizeof(unblockOp));
+                }                
 
                 if (meta->fd < 0) continue;
 
-                std::optional<std::string> filePath = resolveFdPath(meta->fd);
-                if (filePath) {
-                    //first have to remove the global path prefix, ignored for testing
+                std::string filePath = resolveFdPath(meta->fd);
+                //first have to remove the global path prefix, ignored for testing
 
-                    trackedFiles.insert(*filePath);
+                trackedFiles.insert(filePath);
                     
                     //have to do this entire thing to ensure that i am getting the reference that wont die after it goes out of scope
-                    auto it = trackedFiles.find(*filePath);
+                auto it = trackedFiles.find(filePath);
 
                     //for the network thread to clean up
-                    fanotifyNetworkInit *pullInit = new fanotifyNetworkInit;
-                    pullInit->fPath = *filePath;
-                    pullInit->fanPermFd = meta->fd;
+                fanotifyNetworkInit *pullInit = new fanotifyNetworkInit;
+                pullInit->fPath = filePath;
+                pullInit->fanPermFd = meta->fd;
                     
-                    if(meta->mask == FAN_CLASS_PRE_CONTENT) {
-                        //have to pull xattr for blob ownership
+                
+                //have to pull xattr for blob ownership
                         
-                        write(*fanotifyToNetwork ,pullInit, sizeof(*pullInit));
-                        inflightOpens++;
-                    }
+                int writeRes = write(*fanotifyToNetwork ,&pullInit, sizeof(*pullInit));
+                int fullSize = sizeof(&pullInit);
+                inflightOpens++;
+                
                     
-                    }
-                }
+            }
+                
             }
         }
 

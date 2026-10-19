@@ -210,6 +210,17 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
                     break;
                 }
                 std::cout << "read " << readNum << " bytes\n";
+                if(flushSession(session, serverSock)){
+                    struct epoll_event e;
+                    e.events = EPOLLIN | EPOLLOUT;
+                    e.data.fd = serverSock;
+                    epoll_ctl(epollfd, EPOLL_CTL_MOD, serverSock, &e);
+                }else{
+                    struct epoll_event e;
+                    e.events = EPOLLIN;
+                    e.data.fd = serverSock;
+                    epoll_ctl(epollfd, EPOLL_CTL_MOD, serverSock, &e);
+                }
                 ssize_t used = nghttp2_session_mem_recv(session, reinterpret_cast<const uint8_t*>(buffer), readNum);
                 printf("consumed %zd bytes\n", used);
             }

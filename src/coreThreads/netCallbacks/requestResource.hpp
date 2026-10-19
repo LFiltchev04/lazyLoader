@@ -12,11 +12,11 @@
 
 
 bool flushSession(nghttp2_session* session, int sock){
-    while(true){
+    //moves to EPOLLOUT
+    if(nghttp2_session_want_write(session)){
         const uint8_t* data = nullptr;
         ssize_t len = nghttp2_session_mem_send(session, &data);
-        if(len < 0) return false;
-        if(len == 0) return true;
+        
 
         ssize_t sent = 0;
         while(sent < len){
@@ -28,6 +28,8 @@ bool flushSession(nghttp2_session* session, int sock){
             sent += w;
         }
     }
+    
+    return true;
 }
 
 void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd, void* userDataCtx){
@@ -64,6 +66,7 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
         delete fop;
         return;
     }
+
 
     flushSession(session, outgoingFd);
     printf("Finished sending headers for %s\n", filePath.c_str());

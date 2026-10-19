@@ -4,4 +4,4 @@
 #include <unistd.h>
 
 
-std::optional<std::string> resolveFdPath(int fd);
+std::string resolveFdPath(int fd);

@@ -57,11 +57,11 @@ bool idempSockConnect(int& sock, int& epfd, sockaddr_in& addr){
 
 
 
-void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverEndp, bufferPool* bPool, std::mutex& ringLock) {
+void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverEndp, bufferPool* bPool) {
 
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(7070);
+    addr.sin_port = htons(8080);
     inet_pton(AF_INET, serverEndp.c_str(), &addr.sin_addr);
 
     int serverSock = -1;
@@ -92,7 +92,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
 
 
 
-     epoll_event uEvent;
+    epoll_event uEvent;
     uEvent.events = EPOLLIN;
 
     int evfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -115,7 +115,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
 
 
 
-
+    idempSockConnect(serverSock, epollfd, addr);
 
     //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff
     char buffer[65536];

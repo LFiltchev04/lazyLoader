@@ -29,11 +29,19 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
 
     //unblock logic for fanotify events
     struct fanotify_response unblockOp;
+
+    epoll_event fanEv;
+    fanEv.events = EPOLLIN;
+    fanEv.data.fd = fanFd;
+
+    epoll_event uringEv;
+    uringEv.events = EPOLLIN;
+    uringEv.data.fd = *uringToFanotify;
     
     //main network loop fd
     epoll_event events[1];
-    epoll_ctl(epFd, EPOLL_CTL_ADD, fanFd, &events[0]);
-    epoll_ctl(epFd, EPOLL_CTL_ADD, *uringToFanotify, &events[0]);
+    epoll_ctl(epFd, EPOLL_CTL_ADD, fanFd, &fanEv);
+    epoll_ctl(epFd, EPOLL_CTL_ADD, *uringToFanotify, &uringEv);
     
     //this ensures that i must run the fileAccessLoop first. 
     

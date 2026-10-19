@@ -1,0 +1,62 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug fanotify test",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/LazyFetcherTests",
+      "args": [
+        "--gtest_filter=TestSuiteName.TestName",
+        "--gtest_break_on_failure",
+        "--gtest_filter=FanotifyAccessTest.fanotifyThreadTest"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb"
+    }
+    ,
+    {
+      "name": "Debug LazyFetcher as root (gdbserver)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/LazyFetcher",
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerServerAddress": "localhost:2345"
+    },
+    {
+      "name": "Debug resolveFd test as root (gdbserver)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/LazyFetcherTests",
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerServerAddress": "localhost:2345"
+    },
+    {
+      "name": "Debug networkWriteTest",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/LazyFetcherTests",
+      "args": [
+        "--gtest_break_on_failure",
+        "--gtest_filter=networkComponents.basicNetworkRecieve"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb"
+    }
+
+  ]
+}

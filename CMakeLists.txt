@@ -4,6 +4,10 @@ project(LazyFetcher VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-g)
+endif()
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(NGHTTP2 REQUIRED libnghttp2)
 

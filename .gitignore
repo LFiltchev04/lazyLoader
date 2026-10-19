@@ -3,6 +3,7 @@ Makefile
 LazyFetcher
 build/*
 .vscode/*
+!.vscode/launch.json
 CMakeFiles/*
 CMakeFiles
 _deps/googletest-build/*
@@ -31,3 +32,4 @@ LazyFetcherTests
 /tests/tmp/
 /tests/tmp/*
 Makefile
+test.txt

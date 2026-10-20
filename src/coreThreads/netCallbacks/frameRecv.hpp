@@ -18,7 +18,6 @@ int frameRecvCb(nghttp2_session *session, const nghttp2_frame *frame, void *user
 
     if((frame->hd.type == NGHTTP2_HEADERS || frame->hd.type == NGHTTP2_DATA) && (frame->hd.flags & NGHTTP2_FLAG_END_STREAM)){
         std::cout << "server side end of stream on file pull" << std::endl;
-        //stream state (fileOp) is released once the outstanding uring writes complete
     }
 
         

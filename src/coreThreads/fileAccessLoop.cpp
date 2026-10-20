@@ -1,9 +1,12 @@
 #include "fileAccessLoop.hpp"
+#include "../utils/pidTempTest.hpp"
 
 void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotifyToNetwork, int *uringToFanotify, int *eventLoop){
     std::unordered_set<std::string> trackedFiles;
 
-    
+    int serverPID = getPIDsByName("onDemandBackend")[0];
+    printf("serverPID: %d\n", serverPID);
+    int processPid = getpid();
     int fanFd = fanotify_init(FAN_CLASS_PRE_CONTENT | FAN_CLOEXEC, O_RDONLY | O_LARGEFILE);
 
     if(basePath != nullptr){
@@ -101,7 +104,6 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
             ssize_t len = read(fanFd, buf, sizeof(buf));
             if (len <= 0) {
                 if (errno == EINTR) continue;
-                std::perror("read fanotify");
                 continue;
             }
 
@@ -114,12 +116,26 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                 //    continue;
                 //}
 
-                if(meta->pid == getpid()){
+                
+
+                if(meta->pid == processPid){
+                    printf("processPid loopback %d\n", meta->pid);
                     //unblock immediately, its the data writer
                     unblockOp.response = FAN_ALLOW;
                     unblockOp.fd = meta->fd;
                     write(fanFd, &unblockOp, sizeof(unblockOp));
-                }                
+                    continue;
+                }
+                
+                if(meta->pid == getPIDsByName("onDemandBackend")[0]){
+                    
+                    printf("serverPid loopback %d\n", meta->pid);
+
+                    unblockOp.response = FAN_ALLOW;
+                    unblockOp.fd = meta->fd;
+                    write(fanFd, &unblockOp, sizeof(unblockOp));
+                    continue;
+                }
 
                 if (meta->fd < 0) continue;
 
@@ -138,9 +154,8 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                     
                 
                 //have to pull xattr for blob ownership
-                        
-                int writeRes = write(*fanotifyToNetwork ,&pullInit, sizeof(*pullInit));
                 int fullSize = sizeof(&pullInit);
+                int writeRes = write(*fanotifyToNetwork ,&pullInit, fullSize);
                 inflightOpens++;
                 
                     

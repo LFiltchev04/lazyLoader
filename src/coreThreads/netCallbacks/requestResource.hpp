@@ -13,6 +13,12 @@
 
 bool flushSession(nghttp2_session* session, int sock){
     //moves to EPOLLOUT
+
+    if(session == nullptr){
+        return false;
+    }
+    printf("Flushing session, want to write \n");
+
     if(nghttp2_session_want_write(session)){
         const uint8_t* data = nullptr;
         ssize_t len = nghttp2_session_mem_send(session, &data);
@@ -20,27 +26,31 @@ bool flushSession(nghttp2_session* session, int sock){
 
         ssize_t sent = 0;
         while(sent < len){
+            printf("Attempting to write %zd bytes\n", len - sent);
             ssize_t w = write(sock, data + sent, len - sent);
             if(w < 0){
+            
                 if(errno == EINTR || errno == EAGAIN) continue;
                 return false;
             }
             sent += w;
         }
+    }else {
+        return false;
     }
     
     return true;
 }
 
-void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd, void* userDataCtx){
+void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd, int unblockFd){
 
     printf("Sending headers for %s\n", filePath.c_str());
     
     nghttp2_nv nvArr[] = {
         MAKE_NV(":method", "GET"),
+        { (uint8_t *)":path", (uint8_t *)filePath.c_str(), sizeof(":path") - 1, filePath.size(), NGHTTP2_NV_FLAG_NONE },
         MAKE_NV(":scheme", "http"),
-        MAKE_NV(":authority", "localhost"),
-        { (uint8_t *)":path", (uint8_t *)filePath.c_str(), sizeof(":path") - 1, filePath.size(), NGHTTP2_NV_FLAG_NONE }
+        MAKE_NV(":authority", "myself"),
     };
 
     fileOp *fop = new fileOp();
@@ -49,7 +59,7 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
     printf("file FD is: %d\n", fop->fileFd);
     fop->filePosPointer = 0;
     fop->networkFd = outgoingFd;
-    fop->fanotifyFd = -1;
+    fop->fanotifyFd = unblockFd;
 
     if(fop->fileFd < 0){
         printf("Failed to open file %s\n", filePath.c_str());

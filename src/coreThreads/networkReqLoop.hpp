@@ -73,7 +73,7 @@ parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const so
     //connection preface + SETTINGS
     nghttp2_settings_entry entr[2];
     entr[0].settings_id = NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS;
-    entr[0].value = 100;
+    entr[0].value = 4096;
     entr[1].settings_id = NGHTTP2_SETTINGS_INITIAL_WINDOW_SIZE;
     entr[1].value = 65535;
     nghttp2_submit_settings(connCtx->session, NGHTTP2_FLAG_NONE, entr, 2);

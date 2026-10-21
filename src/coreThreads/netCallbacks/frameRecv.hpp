@@ -16,10 +16,13 @@ int frameRecvCb(nghttp2_session *session, const nghttp2_frame *frame, void *user
         std::cout << "server side 200 on file pull" << std::endl;
     }
 
+    if(frame->hd.type == NGHTTP2_DATA){
+        std::cout << "       server side data frame on file pull" << std::endl;
+    }
+
     if((frame->hd.type == NGHTTP2_HEADERS || frame->hd.type == NGHTTP2_DATA) && (frame->hd.flags & NGHTTP2_FLAG_END_STREAM)){
         std::cout << "server side end of stream on file pull" << std::endl;
     }
 
-        
     return 0;
 }

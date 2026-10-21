@@ -27,7 +27,6 @@ int dataChunkWriter(nghttp2_session *session,
         auto& eventChanFd = static_cast<parseCallbackCtx*>(user_data)->eventChanFd;
         auto& bufPool = static_cast<parseCallbackCtx*>(user_data)->bPool;
         
-        printf("data writer is up?\n");
         
         auto t = nghttp2_session_get_stream_user_data(session, stream_id);
 

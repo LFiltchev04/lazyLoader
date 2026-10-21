@@ -48,7 +48,6 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
         printf("completion arrived\n");
         unsigned head;
         unsigned int c = 0u;
-        ringLock.lock();
         read(ev.data.fd, &eventfdBlackHole, 8);
 
         io_uring_for_each_cqe(&ring, head, cqe){
@@ -59,12 +58,20 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
                 std::cout << "io_uring_peek_cqe failed with status: " << static_cast<int>(cqe->res) << std::endl;
             }
 
-            //again, i am assuming it wont short at all so i leave it as is. 
+            //again, i am assuming it wont short at all so i leave it as is.
+            printf("openOps: %d\n", ctx->openOps);
             ctx->openOps--;
             if(ctx->targetWrite != cqe->res){
                 
                 std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->targetWrite << " vs " << cqe->res << "\n\n\n\n";
-            }            
+            }
+
+            if(ctx->openOps == 0){
+                //unblocks fanotify
+                uringCompletionEmit* emitCompletion = new uringCompletionEmit;
+                emitCompletion->accFd = ctx->fanotifyFd;
+                emitCompletion->writtenBytes = 1024;
+            }
             //returns the allocated memory to the buf pool
             ctx->bPool->freeSlab(ctx->slabBuffer);
             ctx->slabBuffer = nullptr;
@@ -75,7 +82,6 @@ void uringCompletionHandler(io_uring& ring, int& uringToFanotify, std::mutex& ri
         }
         io_uring_cq_advance(&ring, c);
 
-        ringLock.unlock();
 
     }
 }

@@ -25,17 +25,19 @@
 #include "netCallbacks/chunkWriter.hpp"
 
 
+
 //ensures contexts are set and there is a connected socket and session with callbacks
 parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const sockaddr_in& serverAddr, io_uring* ring, bufferPool* bPool){
-    if(connCtx != nullptr){
-        return connCtx;
-    }else{
+    
+    if(connCtx==nullptr){
         connCtx = new parseCallbackCtx{};
         connCtx->addr = serverAddr;
         connCtx->ring = ring;
         connCtx->bPool = bPool;
+    }else{
+        return connCtx;
     }
-
+        
 
     connCtx->tcpClientFd = socket(AF_INET, SOCK_STREAM, 0);
     if(connCtx->tcpClientFd < 0){
@@ -52,6 +54,9 @@ parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const so
     }
 
     
+    //set after the blocking connect so connect() doesn't return EINPROGRESS
+    fcntl(connCtx->tcpClientFd, F_SETFL, fcntl(connCtx->tcpClientFd, F_GETFL, 0) | O_NONBLOCK);
+
     printf("Connected to server on fd %d\n", connCtx->tcpClientFd);
     epoll_event eventExtern{};
     eventExtern.events = EPOLLIN;
@@ -125,9 +130,13 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
     uint64_t eventfdBlackHole;
     epoll_event evs[2];
 
+    parseCallbackCtx* connCtx;
+    connCtx = idempSockConnect(connCtx, epollfd, addr, ring, bPool);
+
 
     //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff
     char buffer[65536];
+
 
     while(true){
 
@@ -149,11 +158,9 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
             if(read(fanotifyToNetwork, &i, sizeof(i)) != sizeof(i) || i == nullptr){
                 continue;
             }
-
             
-            auto connCtx = idempSockConnect(nullptr, epollfd, addr, ring, bPool);
             connCtx->eventChanFd = i->fanPermFd;
-            
+
 
             std::cout << "Received fanotify network init " << i->fPath << std::endl;
 
@@ -195,43 +202,56 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
             io_uring_cq_advance(ring, c);
         }else{ //Gates to the data parse and input flow, all the bulk bytes flow in here
             
-            auto* connCtx = static_cast<parseCallbackCtx*>(evs[i].data.ptr);
-            
+            printf("................right CB\n");
                 
             ssize_t readNum = read(connCtx->tcpClientFd, buffer, sizeof(buffer));
             printf("read %zd bytes\n", readNum);
                 
 
             if(readNum <= 0){
-                break;
+                if(readNum == -1){
+                    printf("read error wouldblock\n");
+                    
+                    epoll_event e;
+                    e.events = EPOLLIN;
+                    e.data.ptr = connCtx;
+                    epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
+                    continue;
+                }
             }
+
+
+            //READ PROCESS
+
+            if(readNum > 0){
+                ssize_t used = nghttp2_session_mem_recv(connCtx->session, reinterpret_cast<const uint8_t*>(buffer), readNum);
+                printf("consumed %zd bytes\n", used);
+            }
+
 
             //WRITE PROCESS 
 
-            std::cout << "read " << readNum << " bytes\n";
-
             if(nghttp2_session_want_write(connCtx->session)){ //if it needs to write it relies on EPOLLOUT to keep it running
+                printf("session wants write\n");
                 struct epoll_event e;
                 e.events = EPOLLIN | EPOLLOUT;
-                e.data.ptr = connCtx;
                 epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
                 flushSession(connCtx->session, connCtx->tcpClientFd);
             }else{ //has completed write, enters wait state
+                printf("session does not want write\n");
                 struct epoll_event e;
                 e.events = EPOLLIN;
-                e.data.ptr = connCtx;
                 epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
             }
-
-             //READ PROCESS
-
-            ssize_t used = nghttp2_session_mem_recv(connCtx->session, reinterpret_cast<const uint8_t*>(buffer), readNum);
-            printf("consumed %zd bytes\n", used);
                 
-            }
+        }
             
            
         
     }
 }
+
+
+
+
 }

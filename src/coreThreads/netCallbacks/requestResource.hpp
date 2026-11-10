@@ -42,16 +42,33 @@ bool flushSession(nghttp2_session* session, int sock){
     return true;
 }
 
+
+bool loopbackTestMode = true;
 void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd, int unblockFd){
 
     printf("Sending headers for %s\n", filePath.c_str());
     
-    nghttp2_nv nvArr[] = {
-        MAKE_NV(":method", "GET"),
-        { (uint8_t *)":path", (uint8_t *)filePath.c_str(), sizeof(":path") - 1, filePath.size(), NGHTTP2_NV_FLAG_NONE },
-        MAKE_NV(":scheme", "http"),
-        MAKE_NV(":authority", "myself"),
-    };
+    nghttp2_nv *arr;
+    if(loopbackTestMode){
+        nghttp2_nv nvArr[] = {
+            MAKE_NV(":method", "GET"),
+            { (uint8_t *)":path", (uint8_t *)filePath.c_str(), sizeof(":path") - 1, filePath.size(), NGHTTP2_NV_FLAG_NONE },
+            MAKE_NV(":scheme", "http"),
+            MAKE_NV(":authority", "myself"),
+        };
+        arr = nvArr;
+    }else{
+
+        nghttp2_nv nvArr[] = {
+            MAKE_NV(":method", "GET"),
+            { (uint8_t *)"hash", (uint8_t *)filePath.c_str(), sizeof("hash") - 1, filePath.size(), NGHTTP2_NV_FLAG_NONE },
+            MAKE_NV(":scheme", "http"),
+            MAKE_NV(":authority", "myself"),
+        };
+        arr = nvArr;
+
+
+    }
 
     fileOp *fop = new fileOp();
     fop->filePath = filePath;
@@ -70,7 +87,7 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
     nghttp2_priority_spec priSpec;
     nghttp2_priority_spec_init(&priSpec, 0, 256, 0);
 
-    int32_t streamId = nghttp2_submit_request(session, &priSpec, nvArr, sizeof(nvArr) / sizeof(nvArr[0]), nullptr, fop);
+    int32_t streamId = nghttp2_submit_request(session, &priSpec, arr, 4, nullptr, fop);
     if(streamId < 0){
         close(fop->fileFd);
         delete fop;

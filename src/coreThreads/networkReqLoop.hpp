@@ -23,6 +23,7 @@
 #include "netCallbacks/frameRecv.hpp"
 #include "netCallbacks/headerRecv.hpp"
 #include "netCallbacks/chunkWriter.hpp"
+#include "uringCompletionEmit.hpp"
 
 
 
@@ -88,7 +89,7 @@ parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const so
 
 
 
-void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverEndp, bufferPool* bPool) {
+void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std::string serverEndp, bufferPool* bPool) {
 
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;
@@ -137,6 +138,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
     //static buffer that gets stuff memcp-ed out of to internal nghttp2 stuff
     char buffer[65536];
 
+    bool loopbackTestMode = true;
 
     while(true){
 
@@ -191,7 +193,11 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
                 if(ctx->targetWrite != cqe->res){
                 
                     std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->targetWrite << " vs " << cqe->res << "\n\n\n\n";
-                }            
+                }
+                
+                uringCompletionEmit *e = new uringCompletionEmit(ctx->fanotifyFd, ctx->targetWrite);
+
+                write(uringToFan, e, sizeof(e));
                 //returns the allocated memory to the buf pool
                 ctx->bPool->freeSlab(ctx->slabBuffer);
                 ctx->slabBuffer = nullptr;
@@ -200,6 +206,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, std::string serverE
             }
 
             io_uring_cq_advance(ring, c);
+
         }else{ //Gates to the data parse and input flow, all the bulk bytes flow in here
             
             printf("................right CB\n");

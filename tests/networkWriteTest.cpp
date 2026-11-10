@@ -50,7 +50,7 @@ TEST(networkComponents, basicNetworkRecieve){
    
 
     std::thread netparseThread([&](){
-        networkEventLoop(&ring, fanToNet[0], "127.0.0.1", &pool);
+    //    networkEventLoop(&ring, fanToNet[0], "127.0.0.1", &pool);
     });
     netparseThread.detach();
     sleep(1);

@@ -50,6 +50,7 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
     
     //this is the main loop of the file fetcher service, the individual file requests are fired off in this execution path
 
+
     while (true) {
         int n = epoll_wait(epFd, events, 1, -1);
         std::cout << "unblocked" <<std::endl;
@@ -64,7 +65,7 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
         
 
         for (int i = 0; i < n; ++i) {
-            if (events[i].data.fd == *uringToFanotify){
+            if (events[i].data.fd == *uringToFanotify){ //this is the side of the loop that unblocks 
                 //decrement as it has completed pull
                 inflightOpens--;
                 uringCompletionEmit *emitData;
@@ -72,9 +73,9 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
 
                 unblockOp.response = FAN_ALLOW;
                 unblockOp.fd = emitData->accFd;
-                write(fanFd, &unblockOp, sizeof(unblockOp));
+                //write(fanFd, &unblockOp, sizeof(unblockOp));
 
-                //i am annoyed by the allocations and syscalls
+                
                 //want to push it all to the mmaped DB ideally, that ought to resolve faster than this garbage
                 std::string pthResolv = resolveFdPath(emitData->accFd);
 
@@ -97,7 +98,7 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                 //all cases ought to get rid of this
                 delete emitData;
                 continue;
-            }else if(events[i].data.fd == fanFd){
+            }else if(events[i].data.fd == fanFd){ //theese are the new events coming into the thing
             //checks whetber event came in on a named pipe
             
 

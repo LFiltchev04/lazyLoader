@@ -24,6 +24,8 @@ int main(int argc, char* argv[]) {
     int uringToFan[2];
     pipe(uringToFan);
 
+    
+
     int globalEpfdFile = 0;
 
   
@@ -36,7 +38,7 @@ int main(int argc, char* argv[]) {
 
     bufferPool pool(10);
 
-    std::thread networkThread(networkEventLoop, &ring, fanToNet[0], "127.0.0.1", &pool);
+    std::thread networkThread(networkEventLoop, &ring, fanToNet[0], uringToFan[1], "127.0.0.1", &pool);
     networkThread.detach();
 
 

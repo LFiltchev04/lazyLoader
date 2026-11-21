@@ -24,5 +24,10 @@ int frameRecvCb(nghttp2_session *session, const nghttp2_frame *frame, void *user
         std::cout << "server side end of stream on file pull" << std::endl;
     }
 
+    if(frame->hd.type == NGHTTP2_GOAWAY){
+        std::cout << "GOAWAY frame received - server shutting down connection gracefully\n";
+        std::cout << "Last stream ID: " << frame->goaway.last_stream_id << ", Error code: " << frame->goaway.error_code << "\n";
+    }
+
     return 0;
 }

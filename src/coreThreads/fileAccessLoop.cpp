@@ -46,8 +46,6 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
     epoll_ctl(epFd, EPOLL_CTL_ADD, fanFd, &fanEv);
     epoll_ctl(epFd, EPOLL_CTL_ADD, *uringToFanotify, &uringEv);
     
-    //this ensures that i must run the fileAccessLoop first. 
-    
     //this is the main loop of the file fetcher service, the individual file requests are fired off in this execution path
 
 
@@ -68,12 +66,12 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
             if (events[i].data.fd == *uringToFanotify){ //this is the side of the loop that unblocks 
                 //decrement as it has completed pull
                 inflightOpens--;
-                uringCompletionEmit *emitData;
-                read(*uringToFanotify, emitData, sizeof(*emitData));
+                uringCompletionEmit *emitData = nullptr;
+                read(*uringToFanotify, &emitData, sizeof(uringCompletionEmit*));
 
                 unblockOp.response = FAN_ALLOW;
                 unblockOp.fd = emitData->accFd;
-                //write(fanFd, &unblockOp, sizeof(unblockOp));
+                write(fanFd, &unblockOp, sizeof(unblockOp));
 
                 
                 //want to push it all to the mmaped DB ideally, that ought to resolve faster than this garbage
@@ -155,9 +153,13 @@ void fileAccessEventLoop(blobState *blobDb, std::string *basePath, int *fanotify
                     
                 
                 //have to pull xattr for blob ownership
-                int fullSize = sizeof(&pullInit);
-                int writeRes = write(*fanotifyToNetwork ,&pullInit, fullSize);
-                inflightOpens++;
+                ssize_t writeRes = write(*fanotifyToNetwork, &pullInit, sizeof(pullInit));
+                if (writeRes < 0) {
+                    std::perror("write fanotifyToNetwork");
+                    delete pullInit;
+                } else {
+                    inflightOpens++;
+                }
                 
                     
             }

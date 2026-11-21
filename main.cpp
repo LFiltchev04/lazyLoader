@@ -31,10 +31,14 @@ int main(int argc, char* argv[]) {
   
 
     io_uring ring;
-    io_uring_params params;
+    io_uring_params params = {};
     params.flags |= IORING_SETUP_SQPOLL;
-    io_uring_queue_init_params(4096, &ring, &params);
     params.sq_thread_idle = 2000;
+    int err = io_uring_queue_init_params(4096, &ring, &params);
+    if (err < 0) {
+        std::cerr << "Failed to initialize io_uring: " << strerror(-err) << std::endl;
+        return 1;
+    }
 
     bufferPool pool(10);
 

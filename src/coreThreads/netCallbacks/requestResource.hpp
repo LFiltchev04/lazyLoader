@@ -57,6 +57,7 @@ void sendHeaders(nghttp2_session *session, std::string filePath, int outgoingFd,
             MAKE_NV(":authority", "myself"),
         };
         arr = nvArr;
+        
     }else{
 
         nghttp2_nv nvArr[] = {

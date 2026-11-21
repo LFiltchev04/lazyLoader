@@ -47,6 +47,8 @@ parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const so
         return connCtx;
     }
 
+    setsockopt(connCtx->tcpClientFd, SOL_SOCKET, SO_KEEPALIVE, nullptr, 0);
+
     if(connect(connCtx->tcpClientFd, (sockaddr*)&connCtx->addr, sizeof(connCtx->addr)) < 0){
         perror("Failed to connect to server");
         close(connCtx->tcpClientFd);
@@ -55,7 +57,6 @@ parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const so
     }
 
     
-    //set after the blocking connect so connect() doesn't return EINPROGRESS
     fcntl(connCtx->tcpClientFd, F_SETFL, fcntl(connCtx->tcpClientFd, F_GETFL, 0) | O_NONBLOCK);
 
     printf("Connected to server on fd %d\n", connCtx->tcpClientFd);
@@ -86,6 +87,12 @@ parseCallbackCtx* idempSockConnect(parseCallbackCtx* connCtx, int epfd, const so
     
     return connCtx;
 }
+
+
+
+
+
+
 
 
 
@@ -143,7 +150,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
     while(true){
 
         
-        int n = epoll_wait(epollfd, evs, 2, -1);
+        int n = epoll_wait(epollfd, evs, 1, -1);
 
         if(n < 0){
             if(errno == EINTR){
@@ -153,7 +160,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
             return;
         }
 
-        for(int i = 0; i < n; i++){
+        for(int i = 0; i < 1; i++){
 
         if(evs[i].data.fd == fanotifyToNetwork){ //gates to the flow that starts a file download from fanotify
             fanotifyNetworkInit *i = nullptr;
@@ -170,7 +177,6 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
             while(nghttp2_session_want_write(connCtx->session)){
                 flushSession(connCtx->session, connCtx->tcpClientFd);
             }
-                    
             delete i; //here too
 
         }else if(evs[i].data.fd == evfd){ //Gates to the uring handler flow, if it will even continue to exist
@@ -195,13 +201,14 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
                     std::cout << "\n\n\n\nMismatch between openOps and cqe->res: " << ctx->targetWrite << " vs " << cqe->res << "\n\n\n\n";
                 }
                 
+                
                 uringCompletionEmit *e = new uringCompletionEmit(ctx->fanotifyFd, ctx->targetWrite);
 
-                write(uringToFan, e, sizeof(e));
+                write(uringToFan, &e, sizeof(uringCompletionEmit*));
                 //returns the allocated memory to the buf pool
                 ctx->bPool->freeSlab(ctx->slabBuffer);
-                ctx->slabBuffer = nullptr;
-                ctx->slabBuffer = nullptr;
+                printf("freed slab\n");
+                
                 c++;
             }
 
@@ -211,7 +218,7 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
             
             printf("................right CB\n");
                 
-            ssize_t readNum = read(connCtx->tcpClientFd, buffer, sizeof(buffer));
+            ssize_t readNum = recv(connCtx->tcpClientFd, buffer, sizeof(buffer), 0);
             printf("read %zd bytes\n", readNum);
                 
 
@@ -223,7 +230,13 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
                     e.events = EPOLLIN;
                     e.data.ptr = connCtx;
                     epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
-                    continue;
+                }else if(readNum == 0){
+                    printf("server went 0?\n");
+
+                    epoll_event e;
+                    e.events = EPOLLIN;
+                    e.data.ptr = connCtx;
+                    epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
                 }
             }
 
@@ -242,12 +255,14 @@ void networkEventLoop(io_uring* ring, int fanotifyToNetwork, int uringToFan, std
                 printf("session wants write\n");
                 struct epoll_event e;
                 e.events = EPOLLIN | EPOLLOUT;
+                e.data.ptr = connCtx;
                 epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
                 flushSession(connCtx->session, connCtx->tcpClientFd);
             }else{ //has completed write, enters wait state
                 printf("session does not want write\n");
                 struct epoll_event e;
                 e.events = EPOLLIN;
+                e.data.ptr = connCtx;
                 epoll_ctl(epollfd, EPOLL_CTL_MOD, connCtx->tcpClientFd, &e);
             }
                 
